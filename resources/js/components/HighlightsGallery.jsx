@@ -1,0 +1,248 @@
+import React, { useState, useMemo } from 'react';
+import { Eye, X, Play, Award, Film, Sparkles, ChevronLeft, ChevronRight, Calendar, User } from 'lucide-react';
+
+const highlightItems = [
+    {
+        id: 'h-1',
+        title: 'Jakarta Fashion Week 2025 Opening Gala',
+        category: 'Fashion Shows',
+        year: '2025',
+        designer: 'Sebastian Gunawan Couture',
+        models: 'Nadia Putri & 8 Siluet Tala Alumni',
+        image: '/images/card_runway.jpg',
+        description: 'Penampilan memukau alumni Siluet Model Tala membawakan koleksi haute couture pembuka di panggung runway terbesar Asia Tenggara.'
+    },
+    {
+        id: 'h-2',
+        title: 'Harper’s Bazaar Indonesia Editorial Cover',
+        category: 'Magazine Covers',
+        year: '2024',
+        designer: 'Biyan Wanaatmadja',
+        models: 'Aura Clarissa',
+        image: '/images/hero-model.jpg',
+        description: 'Edisi keanggunan nusantara kontemporer yang diabadikan oleh fotografer mode ternama, menampilkan riasan natural glowing khas editorial modern.'
+    },
+    {
+        id: 'h-3',
+        title: 'Plaza Indonesia Men’s Fashion Week',
+        category: 'Fashion Shows',
+        year: '2025',
+        designer: 'Wong Hang Tailor',
+        models: 'Adrian Pratama & Damon Setiawan',
+        image: '/images/blazer_suit.jpg',
+        description: 'Sorotan tailoring pria kontemporer dengan siluet tegap, presisi tinggi, dan dominasi karakter panggung maskulin berkelas.'
+    },
+    {
+        id: 'h-4',
+        title: 'Sephora Southeast Asia Beauty Campaign',
+        category: 'Commercial TVC',
+        year: '2024',
+        designer: 'Sephora Studio SG',
+        models: 'Valerie Laurent',
+        image: '/images/card_commercial.jpg',
+        description: 'Kampanye kosmetik regional yang tayang di lebih dari 6 negara Asia Tenggara, membuktikan daya saing global talenta Siluet Tala.'
+    },
+    {
+        id: 'h-5',
+        title: 'Best Modeling Academy Award 2024',
+        category: 'Awards & Alumni',
+        year: '2024',
+        designer: 'Indonesia Fashion Chamber (IFC)',
+        models: 'Siluet Model Tala Academy',
+        image: '/images/about-suit.jpg',
+        description: 'Penghargaan bergengsi atas kontribusi mencetak generasi model profesional beretika tinggi dan berprestasi di kancah fashion nasional.'
+    },
+    {
+        id: 'h-6',
+        title: 'Elle Indonesia Golden Hour Photospread',
+        category: 'Magazine Covers',
+        year: '2023',
+        designer: 'Sapto Djojokartiko',
+        models: 'Sophia Ardelia',
+        image: '/images/hero_1.jpg',
+        description: 'Eksplorasi visual mode di alam terbuka dengan permainan cahaya senja dramatis yang menonjolkan ekspresi emosional sang model.'
+    }
+];
+
+export default function HighlightsGallery() {
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
+
+    const categories = ['All', 'Fashion Shows', 'Magazine Covers', 'Commercial TVC', 'Awards & Alumni'];
+
+    const filteredItems = useMemo(() => {
+        return highlightItems.filter((item) => {
+            return selectedCategory === 'All' || item.category === selectedCategory;
+        });
+    }, [selectedCategory]);
+
+    const activeItem = activeLightboxIndex !== null ? filteredItems[activeLightboxIndex] : null;
+
+    const nextLightbox = () => {
+        if (activeLightboxIndex < filteredItems.length - 1) {
+            setActiveLightboxIndex(activeLightboxIndex + 1);
+        } else {
+            setActiveLightboxIndex(0);
+        }
+    };
+
+    const prevLightbox = () => {
+        if (activeLightboxIndex > 0) {
+            setActiveLightboxIndex(activeLightboxIndex - 1);
+        } else {
+            setActiveLightboxIndex(filteredItems.length - 1);
+        }
+    };
+
+    return (
+        <div className="py-10">
+            {/* Stats Metric Strip */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div className="bg-[#faf8f5] p-5 rounded-2xl border border-[#ede7dd] text-center">
+                    <div className="font-serif-luxury text-3xl font-normal text-[#171513]">120+</div>
+                    <div className="text-xs text-[#8e857e] mt-1 font-medium">Runway Shows</div>
+                </div>
+                <div className="bg-[#faf8f5] p-5 rounded-2xl border border-[#ede7dd] text-center">
+                    <div className="font-serif-luxury text-3xl font-normal text-[#171513]">45+</div>
+                    <div className="text-xs text-[#8e857e] mt-1 font-medium">Magazine Covers</div>
+                </div>
+                <div className="bg-[#faf8f5] p-5 rounded-2xl border border-[#ede7dd] text-center">
+                    <div className="font-serif-luxury text-3xl font-normal text-[#171513]">80+</div>
+                    <div className="text-xs text-[#8e857e] mt-1 font-medium">Brand Kampanye</div>
+                </div>
+                <div className="bg-[#faf8f5] p-5 rounded-2xl border border-[#ede7dd] text-center">
+                    <div className="font-serif-luxury text-3xl font-normal text-[#171513]">14</div>
+                    <div className="text-xs text-[#8e857e] mt-1 font-medium">Penghargaan Mode</div>
+                </div>
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center justify-center flex-wrap gap-2.5 mb-12">
+                {categories.map((cat) => (
+                    <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-5 py-2.5 rounded-full text-xs font-medium transition-all ${
+                            selectedCategory === cat
+                                ? 'bg-[#171513] text-white shadow-sm'
+                                : 'bg-[#faf8f5] text-[#59524c] hover:bg-[#ede7dd] border border-[#ede7dd]'
+                        }`}
+                    >
+                        {cat}
+                    </button>
+                ))}
+            </div>
+
+            {/* Gallery Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredItems.map((item, index) => (
+                    <div
+                        key={item.id}
+                        onClick={() => setActiveLightboxIndex(index)}
+                        className="group cursor-pointer bg-white rounded-3xl overflow-hidden border border-[#ede7dd] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+                    >
+                        <div className="relative aspect-[16/11] overflow-hidden bg-[#f4f0e8]">
+                            <img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
+                            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10.5px] font-semibold text-[#171513] border border-white/60">
+                                {item.category}
+                            </div>
+                            <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Eye className="w-4 h-4" />
+                            </div>
+                        </div>
+
+                        <div className="p-6">
+                            <div className="flex items-center gap-2 text-xs text-[#8e857e] mb-2 font-medium">
+                                <Calendar className="w-3.5 h-3.5" />
+                                <span>{item.year}</span>
+                                <span>&bull;</span>
+                                <span>{item.designer}</span>
+                            </div>
+                            <h3 className="font-serif-luxury text-xl font-normal text-[#171513] mb-2 group-hover:text-[#bba994] transition">
+                                {item.title}
+                            </h3>
+                            <p className="text-xs text-[#6e6761] leading-relaxed line-clamp-2">
+                                {item.description}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Interactive Lightbox Slider */}
+            {activeItem && (
+                <div 
+                    className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 lg:p-8"
+                    onClick={() => setActiveLightboxIndex(null)}
+                >
+                    <button
+                        onClick={() => setActiveLightboxIndex(null)}
+                        className="absolute top-6 right-6 z-20 w-11 h-11 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+
+                    <button
+                        onClick={(e) => { e.stopPropagation(); prevLightbox(); }}
+                        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition"
+                    >
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+
+                    <button
+                        onClick={(e) => { e.stopPropagation(); nextLightbox(); }}
+                        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition"
+                    >
+                        <ChevronRight className="w-6 h-6" />
+                    </button>
+
+                    <div 
+                        className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[85vh]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="md:w-3/5 bg-black flex items-center justify-center overflow-hidden">
+                            <img src={activeItem.image} alt={activeItem.title} className="w-full h-full object-contain max-h-[75vh]" />
+                        </div>
+                        <div className="md:w-2/5 p-8 flex flex-col justify-between overflow-y-auto">
+                            <div>
+                                <span className="text-[11px] font-semibold text-[#8e857e] tracking-widest uppercase block mb-1">
+                                    {activeItem.category} &bull; {activeItem.year}
+                                </span>
+                                <h3 className="font-serif-luxury text-2xl text-[#171513] mb-4">
+                                    {activeItem.title}
+                                </h3>
+                                <p className="text-xs text-[#6e6761] leading-relaxed mb-6">
+                                    {activeItem.description}
+                                </p>
+
+                                <div className="space-y-3 pt-4 border-t border-[#f0ebe3] text-xs">
+                                    <div>
+                                        <span className="text-[#8e857e] block text-[11px]">Koleksi / Desainer:</span>
+                                        <span className="font-semibold text-[#171513]">{activeItem.designer}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[#8e857e] block text-[11px]">Talenta / Model:</span>
+                                        <span className="font-semibold text-[#171513]">{activeItem.models}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-6 border-t border-[#f0ebe3]">
+                                <a 
+                                    href="/contact"
+                                    className="w-full bg-[#171513] text-white py-3 rounded-xl text-xs font-medium hover:bg-[#2b2723] transition flex items-center justify-center gap-2"
+                                >
+                                    <span>Konsultasi Proyek Serupa</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
