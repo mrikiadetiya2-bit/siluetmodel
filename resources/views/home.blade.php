@@ -430,7 +430,65 @@
 
             <!-- Program Cards Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
+                @if(isset($programs) && $programs->count() > 0)
+                    @foreach($programs as $prog)
+                    <div class="luxury-card bg-[#ffffff] rounded-2xl border border-[#ede7dd] p-4 flex flex-col justify-between group">
+                        <div>
+                            <!-- Image Container -->
+                            <div class="w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#f5f2eb] mb-4">
+                                <img 
+                                    src="{{ $prog->image ? asset($prog->image) : asset('images/site/card_basic.png') }}" 
+                                    alt="{{ $prog->title }}" 
+                                    class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+
+                            <!-- Card Header -->
+                            <h3 class="font-sans-luxury text-[17px] font-semibold text-[#171513] mb-1.5">
+                                {{ $prog->title }}
+                            </h3>
+                            <p class="text-[#756f68] text-[12.5px] leading-relaxed mb-4 font-sans-luxury">
+                                {{ $prog->description ?: 'Program pelatihan modeling terpadu bersama Siluet Model Tala.' }}
+                            </p>
+
+                            <!-- Features -->
+                            <div class="space-y-2 mb-5 font-sans-luxury text-[12px] text-[#635c55]">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#8c8279]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
+                                    </svg>
+                                    <span>{{ $prog->duration ?: '10 Sesi' }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#8c8279]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m8-10a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                    </svg>
+                                    <span>{{ $prog->category }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-[#8c8279]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <span>Sertifikat</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="pt-3 border-t border-[#f2ede6] flex items-center justify-between">
+                            <span class="font-sans-luxury text-[15.5px] font-semibold text-[#171513]">
+                                Rp {{ number_format($prog->price, 0, ',', '.') }}
+                            </span>
+                            <a href="{{ url('/modeling-school') }}" class="w-8 h-8 rounded-full bg-[#c2b29f] hover:bg-[#aa9781] text-white flex items-center justify-center transition group-hover:rotate-45" aria-label="Pilih {{ $prog->title }}">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
+                @else
                 <!-- Card 1: Basic Modeling -->
                 <div class="luxury-card bg-[#ffffff] rounded-2xl border border-[#ede7dd] p-4 flex flex-col justify-between group">
                     <div>
@@ -658,6 +716,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
 
             </div>
 
@@ -887,26 +946,41 @@
         }
 
         // Testimonial Carousel Data
-        const testimonials = [
-            {
-                quote: "Pelatihannya sangat profesional dan membantu saya lebih percaya diri. Sekarang saya sudah mendapatkan kesempatan untuk ikut fashion show dan photoshoot komersial.",
-                name: "Nadia Putri",
-                role: "Alumni Basic Modeling 2024",
-                avatar: "{{ asset('images/site/avatar_nadia.png') }}"
-            },
-            {
-                quote: "Kurikulum runway & catwalk di Siluet Model Tala benar-benar mengubah cara saya berjalan dan postur tubuh. Mentornya sangat sabar dan detail dalam memberi evaluasi.",
-                name: "Jessica Tania",
-                role: "Alumni Runway & Catwalk 2024",
-                avatar: "{{ asset('images/site/card_commercial.png') }}"
-            },
-            {
-                quote: "Networking yang dibangun Siluet Model Tala sangat membantu karier saya. Setelah lulus, saya langsung terhubung dengan dua agensi fashion ternama di Jakarta.",
-                name: "Aura Clarissa",
-                role: "Alumni Advanced Modeling 2023",
-                avatar: "{{ asset('images/site/card_advanced.png') }}"
+        @php
+            $defaultTestimonials = [
+                [
+                    'quote' => 'Pelatihannya sangat profesional dan membantu saya lebih percaya diri. Sekarang saya sudah mendapatkan kesempatan untuk ikut fashion show dan photoshoot komersial.',
+                    'name' => 'Nadia Putri',
+                    'role' => 'Alumni Basic Modeling 2024',
+                    'avatar' => asset('images/site/avatar_nadia.png')
+                ],
+                [
+                    'quote' => 'Kurikulum runway & catwalk di Siluet Model Tala benar-benar mengubah cara saya berjalan dan postur tubuh. Mentornya sangat sabar dan detail dalam memberi evaluasi.',
+                    'name' => 'Jessica Tania',
+                    'role' => 'Alumni Runway & Catwalk 2024',
+                    'avatar' => asset('images/site/card_commercial.png')
+                ],
+                [
+                    'quote' => 'Networking yang dibangun Siluet Model Tala sangat membantu karier saya. Setelah lulus, saya langsung terhubung dengan dua agensi fashion ternama di Jakarta.',
+                    'name' => 'Aura Clarissa',
+                    'role' => 'Alumni Advanced Modeling 2023',
+                    'avatar' => asset('images/site/card_advanced.png')
+                ]
+            ];
+            $formattedTestimonials = [];
+            if (isset($testimonials) && $testimonials->count() > 0) {
+                foreach ($testimonials as $t) {
+                    $formattedTestimonials[] = [
+                        'quote' => $t->data['quote'] ?? 'Pelatihan modeling yang sangat luar biasa di Siluet Model Tala.',
+                        'name' => $t->data['name'] ?? 'Alumni',
+                        'role' => $t->data['role'] ?? 'Alumni Siluet Tala',
+                        'avatar' => !empty($t->data['avatar']) ? $t->data['avatar'] : asset('images/site/avatar_nadia.png'),
+                    ];
+                }
             }
-        ];
+            $finalTestimonials = !empty($formattedTestimonials) ? $formattedTestimonials : $defaultTestimonials;
+        @endphp
+        const testimonials = @json($finalTestimonials);
 
         let currentTestiIndex = 0;
         const testiQuote = document.getElementById('testi-quote');

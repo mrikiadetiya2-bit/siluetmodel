@@ -1,33 +1,61 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminLayout from './AdminLayout.jsx';
-import { CheckCircle2 } from 'lucide-react';
+import { api, apiErrorMessage } from '../../services/api.js';
+import { CheckCircle2, XCircle, ShieldCheck, Lock } from 'lucide-react';
 
 export default function AdminSettings() {
     const [settingsTab, setSettingsTab] = useState('profil');
     const [toastMessage, setToastMessage] = useState(null);
 
-    const showToast = (msg) => {
-        setToastMessage(msg);
+    const showToast = (msg, type = 'success') => {
+        setToastMessage({ msg, type });
         setTimeout(() => setToastMessage(null), 3500);
     };
 
     const [academySettings, setAcademySettings] = useState({
-        name: 'Siluet Model Tala',
-        tagline: 'Shape Your Presence — Leading Model Academy',
-        email: 'admin@siluetmodeltala.com',
-        phone: '+62 (021) 555-0199',
-        whatsapp: '+62 812-3456-7890',
-        address: 'Jl. Senopati No. 88, Kebayoran Baru, Jakarta Selatan, 12190',
-        bcaAccount: '8820 9182 301 (Siluet Model Tala PT)',
-        mandiriAccount: '1370 0192 8840 (Siluet Model Tala PT)'
+        name: '', tagline: '', email: '', phone: '', whatsapp: '', address: '', bcaAccount: '', mandiriAccount: ''
     });
+
+    useEffect(() => {
+        api('/api/admin/records/settings')
+            .then(records => { if (records[0]?.data) setAcademySettings(current => ({ ...current, ...records[0].data })); })
+            .catch(error => showToast(error.message));
+    }, []);
+
+    const [passwordForm, setPasswordForm] = useState({ current_password: '', password: '', password_confirmation: '' });
+    const [passwordBusy, setPasswordBusy] = useState(false);
+
+    const savePassword = async () => {
+        if (passwordForm.password !== passwordForm.password_confirmation) {
+            showToast('Konfirmasi password tidak cocok.', 'error'); return;
+        }
+        setPasswordBusy(true);
+        try {
+            await api('/api/admin/change-password', { method: 'POST', body: JSON.stringify(passwordForm) });
+            showToast('Password berhasil diubah!');
+            setPasswordForm({ current_password: '', password: '', password_confirmation: '' });
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        } finally {
+            setPasswordBusy(false);
+        }
+    };
+
+    const saveSettings = async () => {
+        try {
+            await api('/api/admin/settings', { method: 'PUT', body: JSON.stringify({ data: academySettings }) });
+            showToast('Pengaturan berhasil disimpan!');
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        }
+    };
 
     return (
         <AdminLayout activeNav="Pengaturan" breadcrumb="Pengaturan">
             {toastMessage && (
-                <div className="fixed top-5 right-5 z-50 bg-[#1c1a17] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm animate-bounce">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    <span>{toastMessage}</span>
+                <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm animate-bounce ${ toastMessage.type === 'error' ? 'bg-red-700 text-white' : 'bg-[#1c1a17] text-white'}`}>
+                    {toastMessage.type === 'error' ? <XCircle className="w-5 h-5 text-red-300" /> : <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
+                    <span>{toastMessage.msg}</span>
                 </div>
             )}
 
@@ -115,7 +143,7 @@ export default function AdminSettings() {
                     </div>
                     <div className="pt-2">
                         <button
-                            onClick={() => showToast('Perubahan profil akademi berhasil disimpan!')}
+                            onClick={saveSettings}
                             className="px-5 py-2.5 bg-[#1c1a17] hover:bg-black text-white rounded-xl text-xs font-medium shadow-xs transition"
                         >
                             Simpan Perubahan
@@ -147,7 +175,7 @@ export default function AdminSettings() {
                     </div>
                     <div className="pt-2">
                         <button
-                            onClick={() => showToast('Rekening pembayaran berhasil diperbarui!')}
+                            onClick={saveSettings}
                             className="px-5 py-2.5 bg-[#1c1a17] hover:bg-black text-white rounded-xl text-xs font-medium shadow-xs transition"
                         >
                             Simpan Rekening
@@ -158,39 +186,40 @@ export default function AdminSettings() {
 
             {settingsTab === 'keamanan' && (
                 <div className="bg-white p-6 rounded-2xl border border-[#ede7dd] shadow-xs max-w-2xl space-y-4">
-                    <h3 className="font-semibold text-base text-[#1c1a17] mb-2">Keamanan & Password Akun</h3>
-                    <div>
-                        <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Password Saat Ini</label>
-                        <input
-                            type="password"
-                            placeholder="••••••••••••"
-                            className="w-full bg-[#fbfaf8] border border-[#ede7dd] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none focus:border-[#1c1a17]"
-                        />
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-[#f7f5f0] flex items-center justify-center">
+                            <Lock className="w-5 h-5 text-[#8c827a]" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-base text-[#1c1a17]">Ubah Password</h3>
+                            <p className="text-xs text-[#78716c]">Ganti password akun admin Anda.</p>
+                        </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Password Baru</label>
-                            <input
-                                type="password"
-                                placeholder="Minimal 8 karakter"
-                                className="w-full bg-[#fbfaf8] border border-[#ede7dd] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none focus:border-[#1c1a17]"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Ulangi Password Baru</label>
-                            <input
-                                type="password"
-                                placeholder="Konfirmasi password baru"
-                                className="w-full bg-[#fbfaf8] border border-[#ede7dd] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none focus:border-[#1c1a17]"
-                            />
-                        </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Password Lama *</label>
+                        <input type="password" value={passwordForm.current_password}
+                            onChange={e => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
+                            className="w-full bg-[#fbfaf8] border border-[#ede7dd] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none focus:border-[#1c1a17]"
+                            placeholder="Password lama Anda" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Password Baru *</label>
+                        <input type="password" value={passwordForm.password}
+                            onChange={e => setPasswordForm({ ...passwordForm, password: e.target.value })}
+                            className="w-full bg-[#fbfaf8] border border-[#ede7dd] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none focus:border-[#1c1a17]"
+                            placeholder="Minimal 8 karakter" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Konfirmasi Password Baru *</label>
+                        <input type="password" value={passwordForm.password_confirmation}
+                            onChange={e => setPasswordForm({ ...passwordForm, password_confirmation: e.target.value })}
+                            className="w-full bg-[#fbfaf8] border border-[#ede7dd] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none focus:border-[#1c1a17]"
+                            placeholder="Ulangi password baru" />
                     </div>
                     <div className="pt-2">
-                        <button
-                            onClick={() => showToast('Password berhasil diperbarui dengan aman!')}
-                            className="px-5 py-2.5 bg-[#1c1a17] hover:bg-black text-white rounded-xl text-xs font-medium shadow-xs transition"
-                        >
-                            Update Password
+                        <button onClick={savePassword} disabled={passwordBusy || !passwordForm.current_password || !passwordForm.password}
+                            className="px-5 py-2.5 bg-[#1c1a17] hover:bg-black text-white rounded-xl text-xs font-medium shadow-xs transition disabled:opacity-50">
+                            {passwordBusy ? 'Memperbarui...' : 'Perbarui Password'}
                         </button>
                     </div>
                 </div>

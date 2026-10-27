@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { authService } from '../services/authService.js';
+import { apiErrorMessage } from '../services/api.js';
 import { Eye, EyeOff, Lock, Mail, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
-export default function AuthPortal({ initialMode = 'login' }) {
+export default function AuthPortal({ initialMode = 'login', adminOnly = false }) {
     const [mode, setMode] = useState(initialMode); // 'login' | 'register'
     const [role, setRole] = useState('student'); // 'student' | 'model' | 'client'
     const [showPassword, setShowPassword] = useState(false);
@@ -14,12 +16,15 @@ export default function AuthPortal({ initialMode = 'login' }) {
         remember: true
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (mode === 'login') {
-            setSuccessMessage('Selamat datang kembali di Portal Siluet Model Tala!');
-        } else {
-            setSuccessMessage('Pendaftaran akun berhasil! Silakan verifikasi tautan di email Anda.');
+        try {
+            if (mode === 'login') await (adminOnly ? authService.adminLogin : authService.login)({ email: formData.email, password: formData.password, remember: formData.remember });
+            else await authService.register({ name: formData.name, email: formData.email, phone: formData.phone, password: formData.password, password_confirmation: formData.password });
+            setSuccessMessage(adminOnly ? 'Login administrator berhasil.' : mode === 'login' ? 'Selamat datang kembali di Portal Siluet Model Tala!' : 'Pendaftaran akun berhasil!');
+            window.location.assign(adminOnly ? '/admin/dashboard' : '/portal/dashboard');
+        } catch (error) {
+            setSuccessMessage(apiErrorMessage(error));
         }
         setTimeout(() => {
             setSuccessMessage('');
@@ -34,8 +39,10 @@ export default function AuthPortal({ initialMode = 'login' }) {
                 {/* Glow subtle highlight */}
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#bba994] to-transparent"></div>
 
+                {adminOnly && <h1 className="font-serif-luxury text-2xl text-[#171513] text-center mb-6">Login Administrator</h1>}
+
                 {/* Mode Tabs */}
-                <div className="flex items-center gap-2 mb-8 p-1.5 bg-[#faf8f5] rounded-2xl border border-[#ede7dd]">
+                {!adminOnly && <div className="flex items-center gap-2 mb-8 p-1.5 bg-[#faf8f5] rounded-2xl border border-[#ede7dd]">
                     <button
                         type="button"
                         onClick={() => { setMode('login'); setSuccessMessage(''); }}
@@ -58,10 +65,10 @@ export default function AuthPortal({ initialMode = 'login' }) {
                     >
                         Join Academy (Daftar)
                     </button>
-                </div>
+                </div>}
 
                 {/* Role Toggle for Registration */}
-                {mode === 'register' && (
+                {!adminOnly && mode === 'register' && (
                     <div className="mb-6">
                         <label className="text-[11px] font-semibold text-[#8e857e] uppercase tracking-wider block mb-2">
                             Pilih Kategori Keanggotaan:

@@ -65,13 +65,51 @@ const mentors = [
 ];
 
 export default function MentorShowcase() {
+    const [mentorList, setMentorList] = useState(mentors);
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [consultName, setConsultName] = useState('');
     const [consultPhone, setConsultPhone] = useState('');
 
-    const handleConsultation = (e) => {
+    React.useEffect(() => {
+        fetch('/api/public/mentors')
+            .then(res => res.ok ? res.json() : [])
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    const mapped = data.map(m => ({
+                        id: `db-${m.id}`,
+                        name: m.name,
+                        role: m.title || 'Instruktur Model',
+                        experience: 'Mentor Siluet Tala',
+                        specialty: Array.isArray(m.specialties) ? m.specialties.join(', ') : (m.specialties || 'Catwalk & Posing'),
+                        image: m.photo_path ? (m.photo_path.startsWith('http') || m.photo_path.startsWith('/') ? m.photo_path : `/storage/${m.photo_path}`) : '/images/hero_3.jpg',
+                        bio: m.bio || 'Instruktur modeling profesional Siluet Model Tala.',
+                        achievements: ['Instruktur Resmi Siluet Model Tala'],
+                        instagram: '@siluetmodeltala',
+                    }));
+                    setMentorList([...mapped, ...mentors]);
+                }
+            })
+            .catch(() => {});
+    }, []);
+
+    const handleConsultation = async (e) => {
         e.preventDefault();
+        try {
+            await fetch('/api/public/records/booking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    data: {
+                        type: 'consultation',
+                        mentorName: selectedMentor?.name,
+                        name: consultName,
+                        phone: consultPhone,
+                        submittedAt: new Date().toISOString(),
+                    }
+                })
+            });
+        } catch (err) {}
         setBookingSuccess(true);
         setTimeout(() => {
             setBookingSuccess(false);
@@ -85,7 +123,7 @@ export default function MentorShowcase() {
         <div className="py-10">
             {/* Grid of Mentors */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                {mentors.map((mentor) => (
+                {mentorList.map((mentor) => (
                     <div
                         key={mentor.id}
                         onClick={() => setSelectedMentor(mentor)}

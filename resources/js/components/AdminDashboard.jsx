@@ -948,13 +948,6 @@ export default function AdminDashboard() {
                                         Berikut ringkasan aktivitas Siluet Model Tala hari ini.
                                     </p>
                                 </div>
-                                <button
-                                    onClick={() => setIsAddProgramOpen(true)}
-                                    className="inline-flex items-center gap-2 bg-[#1c1a17] hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium shadow-sm transition self-start sm:self-auto cursor-pointer active:scale-95"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                    Tambah Program
-                                </button>
                             </div>
 
                             {/* 4 Stat Cards */}
@@ -1329,13 +1322,13 @@ export default function AdminDashboard() {
                                                 </div>
                                                 <div>
                                                     <div className="flex justify-between text-[11px] text-[#78716c] mb-1">
-                                                        <span>Kuota: {prog.enrolled}/{prog.quota} Siswa</span>
-                                                        <span>{Math.round((prog.enrolled / prog.quota) * 100)}%</span>
+                                                        <span>Kuota: {Number(prog.enrolled || 0)}/{Number(prog.quota || 0)} Siswa</span>
+                                                        <span>{prog.quota > 0 ? Math.round((Number(prog.enrolled || 0) / Number(prog.quota)) * 100) : 0}%</span>
                                                     </div>
                                                     <div className="w-full h-1.5 bg-[#f0ebe3] rounded-full overflow-hidden">
                                                         <div
                                                             className="h-full bg-[#1c1a17] rounded-full transition-all"
-                                                            style={{ width: `${(prog.enrolled / prog.quota) * 100}%` }}
+                                                            style={{ width: `${prog.quota > 0 ? Math.min((Number(prog.enrolled || 0) / Number(prog.quota)) * 100, 100) : 0}%` }}
                                                         />
                                                     </div>
                                                 </div>

@@ -116,8 +116,23 @@ export default function MenRoster() {
         );
     };
 
-    const handleBookingSubmit = (e) => {
+    const handleBookingSubmit = async (e) => {
         e.preventDefault();
+        try {
+            await fetch('/api/public/records/booking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    data: {
+                        ...bookingForm,
+                        talentId: selectedModel?.id,
+                        talentName: selectedModel?.name,
+                        division: 'Men',
+                        submittedAt: new Date().toISOString(),
+                    }
+                })
+            });
+        } catch (err) {}
         setBookingSuccess(true);
         setTimeout(() => {
             setBookingSuccess(false);

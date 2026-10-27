@@ -65,16 +65,38 @@ const highlightItems = [
 ];
 
 export default function HighlightsGallery() {
+    const [items, setItems] = useState(highlightItems);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
+
+    React.useEffect(() => {
+        fetch('/api/public/records/gallery')
+            .then(res => res.ok ? res.json() : [])
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    const mapped = data.map(d => ({
+                        id: `db-${d.id}`,
+                        title: d.data?.title || 'Galeri Siluet Tala',
+                        category: d.data?.category || 'Fashion Shows',
+                        year: d.data?.date ? String(d.data.date).slice(0, 4) : '2025',
+                        designer: d.data?.designer || 'Siluet Model Tala',
+                        models: d.data?.models || 'Alumni & Talent',
+                        image: d.data?.image || '/images/card_runway.jpg',
+                        description: d.data?.description || d.data?.title || '',
+                    }));
+                    setItems([...mapped, ...highlightItems]);
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     const categories = ['All', 'Fashion Shows', 'Magazine Covers', 'Commercial TVC', 'Awards & Alumni'];
 
     const filteredItems = useMemo(() => {
-        return highlightItems.filter((item) => {
+        return items.filter((item) => {
             return selectedCategory === 'All' || item.category === selectedCategory;
         });
-    }, [selectedCategory]);
+    }, [items, selectedCategory]);
 
     const activeItem = activeLightboxIndex !== null ? filteredItems[activeLightboxIndex] : null;
 

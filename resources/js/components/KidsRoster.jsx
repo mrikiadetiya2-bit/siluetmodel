@@ -245,7 +245,21 @@ export default function KidsRoster() {
                         </div>
 
                         <button
-                            onClick={() => {
+                            onClick={async () => {
+                                try {
+                                    await fetch('/api/public/records/booking', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                        body: JSON.stringify({
+                                            data: {
+                                                talentId: selectedKid?.id,
+                                                talentName: selectedKid?.name,
+                                                division: 'Kids',
+                                                submittedAt: new Date().toISOString(),
+                                            }
+                                        })
+                                    });
+                                } catch (err) {}
                                 setBookingSuccess(true);
                                 setTimeout(() => {
                                     setBookingSuccess(false);

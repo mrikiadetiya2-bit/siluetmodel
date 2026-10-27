@@ -1,140 +1,318 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AdminLayout from './AdminLayout.jsx';
-import { Plus, Clock, Edit3, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, Edit3, CheckCircle2, XCircle, Users, Calendar, MapPin, X } from 'lucide-react';
+import { api, apiErrorMessage } from '../../services/api.js';
+
+const emptyForm = { program_id: '', mentor_id: '', starts_at: '', ends_at: '', location: '', capacity: 20, status: 'scheduled' };
+
+function Toast({ message, type = 'success' }) {
+    if (!message) return null;
+    return (
+        <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm animate-bounce ${type === 'error' ? 'bg-red-700 text-white' : 'bg-[#1c1a17] text-white'}`}>
+            {type === 'error' ? <XCircle className="w-5 h-5 text-red-300" /> : <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
+            <span>{message}</span>
+        </div>
+    );
+}
+
+const statusBadge = (status) => {
+    const map = {
+        scheduled: 'bg-blue-50 text-blue-700 border-blue-200',
+        completed: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        cancelled: 'bg-red-50 text-red-700 border-red-200',
+    };
+    const label = { scheduled: 'Terjadwal', completed: 'Selesai', cancelled: 'Dibatalkan' };
+    return (
+        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold border ${map[status] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+            {label[status] || status}
+        </span>
+    );
+};
 
 export default function AdminSchedule() {
-    const [selectedDay, setSelectedDay] = useState('Sabtu');
-    const [toastMessage, setToastMessage] = useState(null);
+    const [schedules, setSchedules] = useState([]);
+    const [programs, setPrograms] = useState([]);
+    const [mentors, setMentors] = useState([]);
+    const [selected, setSelected] = useState(null);
+    const [attendances, setAttendances] = useState([]);
+    const [form, setForm] = useState(emptyForm);
+    const [editing, setEditing] = useState(null);
+    const [showForm, setShowForm] = useState(false);
+    const [toast, setToast] = useState(null);
+    const [busy, setBusy] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const showToast = (msg) => {
-        setToastMessage(msg);
-        setTimeout(() => setToastMessage(null), 3500);
+    const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3500);
     };
 
-    const scheduleByDay = {
-        'Senin': [
-            { time: '13:00 - 15:30', title: 'Basic Posture & Stride Batch A', studio: 'Studio 1 (Catwalk Mirror Hall)', mentor: 'Nadia Putri', enrolled: '22 Siswa', status: 'Selesai' },
-            { time: '16:00 - 18:30', title: 'Commercial Facial Expression', studio: 'Studio 2 (Photo & Video Studio)', mentor: 'Valerie Laurent', enrolled: '18 Siswa', status: 'Selesai' },
-        ],
-        'Rabu': [
-            { time: '14:00 - 16:30', title: 'Editorial Posing & Light Angle', studio: 'Studio 2 (Photo & Video Studio)', mentor: 'Aura Clarissa', enrolled: '16 Siswa', status: 'Terjadwal' },
-            { time: '17:00 - 19:30', title: 'Male Division Runway Stride', studio: 'Studio 1 (Catwalk Mirror Hall)', mentor: 'Dimas Wicaksono', enrolled: '14 Siswa', status: 'Terjadwal' },
-        ],
-        'Jumat': [
-            { time: '13:30 - 16:00', title: 'Kids & Teens Confidence Training', studio: 'Studio 3 (Kids Arena)', mentor: 'Elena Siluet', enrolled: '12 Siswa', status: 'Terjadwal' },
-            { time: '16:30 - 19:00', title: 'Casting & Brand Commercial Simulation', studio: 'Studio 2 (Photo & Video Studio)', mentor: 'Citra Anindya', enrolled: '19 Siswa', status: 'Terjadwal' },
-        ],
-        'Sabtu': [
-            { time: '09:00 - 11:30', title: 'Haute Couture Catwalk Masterclass', studio: 'Studio 1 (Catwalk Mirror Hall)', mentor: 'Jessica Tania', enrolled: '15 Siswa', status: 'Berlangsung' },
-            { time: '12:30 - 15:00', title: 'Basic Modeling Intensive Batch VII', studio: 'Studio 1 (Catwalk Mirror Hall)', mentor: 'Nadia Putri', enrolled: '24 Siswa', status: 'Akan Datang' },
-            { time: '15:30 - 18:00', title: 'High Fashion Editorial Posing', studio: 'Studio 2 (Photo & Video Studio)', mentor: 'Aura Clarissa', enrolled: '18 Siswa', status: 'Akan Datang' },
-            { time: '18:30 - 20:30', title: 'Audisi Persiapan Jakarta Fashion Week', studio: 'Studio 1 (Catwalk Mirror Hall)', mentor: 'Jessica & Aura', enrolled: '10 Siswa', status: 'Akan Datang' },
-        ],
-        'Minggu': [
-            { time: '10:00 - 12:30', title: 'Beauty Pageant Stage Presence & Q&A', studio: 'Studio 1 (Catwalk Mirror Hall)', mentor: 'Nadia Putri', enrolled: '12 Siswa', status: 'Terjadwal' },
-            { time: '13:30 - 16:00', title: 'TVC Live Audition & Video Portfolio', studio: 'Studio 2 (Photo & Video Studio)', mentor: 'Citra Anindya', enrolled: '16 Siswa', status: 'Terjadwal' },
-        ]
+    const load = async () => {
+        try {
+            const [scheduleData, programData, mentorData] = await Promise.all([
+                api('/api/admin/schedules'),
+                api('/api/admin/programs'),
+                api('/api/admin/mentors'),
+            ]);
+            setSchedules(scheduleData.data || []);
+            setPrograms(programData.data || []);
+            setMentors((mentorData.data || []).filter(m => m.active));
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        } finally {
+            setLoading(false);
+        }
     };
+
+    useEffect(() => { load(); }, []);
+
+    const openAdd = () => {
+        setForm(emptyForm);
+        setEditing(null);
+        setShowForm(true);
+    };
+
+    const openEdit = (schedule) => {
+        setEditing(schedule.id);
+        setForm({
+            program_id: schedule.program_id,
+            mentor_id: schedule.mentor_id,
+            starts_at: schedule.starts_at?.slice(0, 16).replace(' ', 'T') || '',
+            ends_at: schedule.ends_at?.slice(0, 16).replace(' ', 'T') || '',
+            location: schedule.location || '',
+            capacity: schedule.capacity || 20,
+            status: schedule.status || 'scheduled',
+        });
+        setShowForm(true);
+    };
+
+    const save = async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        const payload = {
+            ...form,
+            capacity: Number(form.capacity),
+            starts_at: `${form.starts_at.replace('T', ' ')}:00`,
+            ends_at: `${form.ends_at.replace('T', ' ')}:00`,
+        };
+        try {
+            if (editing) {
+                await api(`/api/admin/schedules/${editing}`, { method: 'PUT', body: JSON.stringify(payload) });
+                showToast('Jadwal berhasil diperbarui!');
+            } else {
+                await api('/api/admin/schedules', { method: 'POST', body: JSON.stringify(payload) });
+                showToast('Jadwal baru berhasil ditambahkan!');
+            }
+            setShowForm(false);
+            setEditing(null);
+            setForm(emptyForm);
+            await load();
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const deleteSchedule = async (schedule) => {
+        if (!window.confirm(`Hapus jadwal ${schedule.program?.title || ''} pada ${schedule.starts_at}?`)) return;
+        try {
+            const res = await api(`/api/admin/schedules/${schedule.id}`, { method: 'DELETE' });
+            showToast(res.message || 'Jadwal dihapus.');
+            await load();
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        }
+    };
+
+    const openAttendance = async (schedule) => {
+        setSelected(selected === schedule.id ? null : schedule.id);
+        if (selected === schedule.id) return;
+        try {
+            const result = await api(`/api/schedules/${schedule.id}/attendance`);
+            setAttendances(result.data || []);
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+            setAttendances([]);
+        }
+    };
+
+    const fmt = (dt) => dt ? new Date(dt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 
     return (
         <AdminLayout activeNav="Jadwal Kelas" breadcrumb="Jadwal Kelas">
-            {toastMessage && (
-                <div className="fixed top-5 right-5 z-50 bg-[#1c1a17] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm animate-bounce">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    <span>{toastMessage}</span>
-                </div>
-            )}
+            <Toast message={toast?.msg} type={toast?.type} />
 
+            {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <span className="text-[10.5px] tracking-[0.28em] uppercase font-semibold text-[#8c827a] block mb-1">
-                        TIMETABLE STUDIO
-                    </span>
-                    <h1 className="font-serif text-3xl sm:text-4xl text-[#1c1a17] font-normal tracking-tight">
-                        Jadwal Kelas & Sesi Latihan
-                    </h1>
-                    <p className="text-xs sm:text-sm text-[#78716c] mt-1">
-                        Kalender sesi catwalk, latihan studio foto, dan evaluasi mingguan.
-                    </p>
+                    <span className="text-[10.5px] tracking-[0.28em] uppercase font-semibold text-[#8c827a] block mb-1">MANAJEMEN KELAS</span>
+                    <h1 className="font-serif text-3xl sm:text-4xl text-[#1c1a17] font-normal tracking-tight">Jadwal Kelas & Kehadiran</h1>
+                    <p className="text-xs sm:text-sm text-[#78716c] mt-1">Atur jadwal kelas, mentor, dan pantau kehadiran peserta.</p>
                 </div>
-                <button
-                    onClick={() => showToast('Membuka formulir jadwal sesi baru.')}
-                    className="inline-flex items-center gap-2 bg-[#1c1a17] hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium shadow-sm transition"
-                >
-                    <Plus className="w-4 h-4" />
-                    Atur Sesi Baru
+                <button onClick={openAdd}
+                    className="inline-flex items-center gap-2 bg-[#1c1a17] hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium shadow-sm transition self-start sm:self-auto">
+                    <Plus className="w-4 h-4" />Tambah Jadwal
                 </button>
             </div>
 
-            <div className="flex flex-wrap gap-2 bg-white p-3 rounded-2xl border border-[#ede7dd]">
-                {['Senin', 'Rabu', 'Jumat', 'Sabtu', 'Minggu'].map((day) => (
-                    <button
-                        key={day}
-                        onClick={() => setSelectedDay(day)}
-                        className={`px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer flex items-center gap-2 ${
-                            selectedDay === day
-                                ? 'bg-[#1c1a17] text-white shadow-xs'
-                                : 'text-[#68625c] hover:bg-[#ede7dd]/50'
-                        }`}
-                    >
-                        <span>{day}</span>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                            selectedDay === day ? 'bg-white/20 text-white' : 'bg-[#ede7dd] text-[#68625c]'
-                        }`}>
-                            {scheduleByDay[day]?.length || 0} Sesi
-                        </span>
-                    </button>
-                ))}
+            {/* Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd]">
+                    <span className="text-xs text-[#78716c]">Total Jadwal</span>
+                    <div className="text-2xl font-bold mt-1">{schedules.length}</div>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd]">
+                    <span className="text-xs text-[#78716c]">Terjadwal</span>
+                    <div className="text-2xl font-bold text-blue-600 mt-1">{schedules.filter(s => s.status === 'scheduled').length}</div>
+                </div>
+                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd]">
+                    <span className="text-xs text-[#78716c]">Selesai</span>
+                    <div className="text-2xl font-bold text-emerald-600 mt-1">{schedules.filter(s => s.status === 'completed').length}</div>
+                </div>
             </div>
 
-            <div className="space-y-4">
-                {(scheduleByDay[selectedDay] || []).map((item, idx) => (
-                    <div key={idx} className="bg-white rounded-2xl border border-[#ede7dd] p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md transition">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#faf8f5] border border-[#ede7dd] flex flex-col items-center justify-center shrink-0 text-[#1c1a17]">
-                                <Clock className="w-4 h-4 text-[#8c827a] mb-0.5" />
-                                <span className="text-[10px] font-bold">SESI</span>
+            {/* Form Modal */}
+            {showForm && (
+                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-[#ede7dd] max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between pb-4 border-b border-[#ede7dd]">
+                            <h3 className="font-serif text-xl font-normal text-[#1c1a17]">{editing ? 'Edit Jadwal' : 'Tambah Jadwal Baru'}</h3>
+                            <button onClick={() => { setShowForm(false); setEditing(null); }} className="p-1.5 text-[#8c827a] hover:text-[#1c1a17]">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <form onSubmit={save} className="mt-5 space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Program *</label>
+                                    <select required value={form.program_id} onChange={e => setForm({ ...form, program_id: e.target.value })}
+                                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none">
+                                        <option value="">Pilih program</option>
+                                        {programs.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Mentor Aktif *</label>
+                                    <select required value={form.mentor_id} onChange={e => setForm({ ...form, mentor_id: e.target.value })}
+                                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none">
+                                        <option value="">Pilih mentor</option>
+                                        {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Mulai *</label>
+                                    <input required type="datetime-local" value={form.starts_at} onChange={e => setForm({ ...form, starts_at: e.target.value })}
+                                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Selesai *</label>
+                                    <input required type="datetime-local" value={form.ends_at} onChange={e => setForm({ ...form, ends_at: e.target.value })}
+                                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none" />
+                                </div>
                             </div>
                             <div>
-                                <div className="flex items-center gap-2.5">
-                                    <span className="font-mono text-xs font-bold text-[#1c1a17] bg-[#f7f5f0] px-2 py-0.5 rounded-md border border-[#ede7dd]">
-                                        {item.time}
-                                    </span>
-                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                                        item.status === 'Berlangsung' ? 'bg-emerald-100 text-emerald-800' :
-                                        item.status === 'Selesai' ? 'bg-gray-100 text-gray-600' : 'bg-blue-100 text-blue-800'
-                                    }`}>
-                                        {item.status}
-                                    </span>
+                                <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Lokasi *</label>
+                                <input required value={form.location} onChange={e => setForm({ ...form, location: e.target.value })}
+                                    className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none"
+                                    placeholder="Studio A, Gedung X Lt.2" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Kapasitas *</label>
+                                    <input required type="number" min="1" value={form.capacity} onChange={e => setForm({ ...form, capacity: e.target.value })}
+                                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none" />
                                 </div>
-                                <h3 className="font-semibold text-base text-[#1c1a17] mt-1.5">{item.title}</h3>
-                                <div className="flex flex-wrap items-center gap-3 text-xs text-[#78716c] mt-1">
-                                    <span>Lokasi: {item.studio}</span>
-                                    <span>•</span>
-                                    <span>Instruktur: <strong className="text-[#1c1a17] font-medium">{item.mentor}</strong></span>
-                                    <span>•</span>
-                                    <span>{item.enrolled}</span>
+                                {editing && (
+                                    <div>
+                                        <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Status</label>
+                                        <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}
+                                            className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none">
+                                            <option value="scheduled">Terjadwal</option>
+                                            <option value="completed">Selesai</option>
+                                            <option value="cancelled">Dibatalkan</option>
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="pt-3 flex items-center justify-end gap-3">
+                                <button type="button" onClick={() => { setShowForm(false); setEditing(null); }} className="px-4 py-2 text-xs font-medium text-[#78716c]">Batal</button>
+                                <button type="submit" disabled={busy}
+                                    className="px-5 py-2 bg-[#1c1a17] text-white rounded-xl text-xs font-medium disabled:opacity-50">
+                                    {busy ? 'Menyimpan...' : (editing ? 'Simpan Perubahan' : 'Tambah Jadwal')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Schedule List */}
+            {loading ? (
+                <div className="p-10 text-center text-sm text-[#78716c]">Memuat data jadwal...</div>
+            ) : schedules.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-[#ede7dd] p-10 text-center text-sm text-[#78716c]">Belum ada jadwal tersimpan.</div>
+            ) : (
+                <div className="space-y-4">
+                    {schedules.map(schedule => (
+                        <div key={schedule.id} className="bg-white rounded-2xl border border-[#ede7dd] overflow-hidden shadow-xs">
+                            <div className="p-5 flex flex-wrap items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        {statusBadge(schedule.status)}
+                                        <h3 className="font-semibold text-[#1c1a17] text-sm">{schedule.program?.title || 'Program'}</h3>
+                                    </div>
+                                    <div className="flex flex-wrap gap-4 text-xs text-[#68625c] mt-2">
+                                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{fmt(schedule.starts_at)} – {fmt(schedule.ends_at)}</span>
+                                        <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{schedule.location}</span>
+                                        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{schedule.attendances_count || 0}/{schedule.capacity} hadir</span>
+                                        <span className="font-medium text-[#1c1a17]">{schedule.mentor?.name || 'Mentor'}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => openAttendance(schedule)}
+                                        className="px-3 py-1.5 bg-[#f7f5f0] hover:bg-[#ede7dd] text-[#1c1a17] rounded-xl text-xs font-medium transition">
+                                        Kehadiran
+                                    </button>
+                                    <button onClick={() => openEdit(schedule)}
+                                        className="p-1.5 text-[#78716c] hover:text-[#1c1a17] hover:bg-[#f7f5f0] rounded-lg transition">
+                                        <Edit3 className="w-4 h-4" />
+                                    </button>
+                                    <button onClick={() => deleteSchedule(schedule)}
+                                        className="p-1.5 text-[#78716c] hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex items-center gap-2 self-end sm:self-auto">
-                            <button
-                                onClick={() => showToast(`Cek absensi siswa sesi: ${item.title}`)}
-                                className="px-3.5 py-1.5 bg-[#f7f5f0] hover:bg-[#ede7dd] text-[#1c1a17] rounded-xl text-xs font-medium transition"
-                            >
-                                Absensi Murid
-                            </button>
-                            <button
-                                onClick={() => showToast(`Edit sesi: ${item.title}`)}
-                                className="p-2 border border-[#ede7dd] text-[#78716c] hover:text-[#1c1a17] rounded-xl"
-                            >
-                                <Edit3 className="w-3.5 h-3.5" />
-                            </button>
+                            {selected === schedule.id && (
+                                <div className="border-t border-[#f3efe8] p-5 bg-[#faf8f5]">
+                                    <h4 className="text-xs font-semibold text-[#1c1a17] mb-3">Riwayat Kehadiran</h4>
+                                    {attendances.length === 0 ? (
+                                        <p className="text-xs text-[#78716c]">Belum ada catatan kehadiran untuk jadwal ini.</p>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            {attendances.map(record => (
+                                                <div key={record.id} className="flex items-center justify-between text-xs bg-white p-2.5 rounded-xl border border-[#ede7dd]">
+                                                    <span className="font-medium text-[#1c1a17]">{record.participant?.user?.name || `Peserta #${record.participant_id}`}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${record.status === 'hadir' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                                                            {record.status}
+                                                        </span>
+                                                        <span className="text-[#8c827a]">{record.marked_at}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </AdminLayout>
     );
 }

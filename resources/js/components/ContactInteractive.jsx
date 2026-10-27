@@ -12,8 +12,13 @@ export default function ContactInteractive() {
         message: ''
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        const response = await fetch('/api/public/records/contact', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ data: { ...formData, type: formType } }),
+        });
+        if (!response.ok) return;
         setSubmitted(true);
         setTimeout(() => {
             setSubmitted(false);

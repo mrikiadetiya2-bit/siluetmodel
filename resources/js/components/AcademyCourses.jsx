@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, Calendar, Clock, Award, Users, BookOpen, Sparkles, ChevronRight, Calculator, CheckCircle2 } from 'lucide-react';
+import { programService } from '../services/programService.js';
+import { enrollmentService } from '../services/enrollmentService.js';
+import { apiErrorMessage } from '../services/api.js';
+import { Notification, RequestStatus } from './RequestStatus.jsx';
 
 const courses = [
     {
@@ -89,31 +93,59 @@ const courses = [
 ];
 
 export default function AcademyCourses() {
+    const [availableCourses, setAvailableCourses] = useState(courses);
     const [selectedCourse, setSelectedCourse] = useState(courses[0]);
     const [classType, setClassType] = useState('regular'); // regular / private
     const [scheduleDay, setScheduleDay] = useState('weekend'); // weekend / weekday
     const [registeredSuccess, setRegisteredSuccess] = useState(false);
     const [formData, setFormData] = useState({ name: '', phone: '', email: '', city: '' });
+    const [loading, setLoading] = useState(true);
+    const [requestError, setRequestError] = useState('');
+
+    useEffect(() => {
+        programService.publicList()
+            .then(programs => {
+                if (!programs.length) return;
+                const mapped = programs.map((program, index) => ({
+                    id: String(program.id), name: program.title,
+                    tagline: program.description || program.category,
+                    duration: program.duration, level: program.category,
+                    price: Number(program.price), image: program.image || courses[index % courses.length].image,
+                    syllabus: program.syllabus?.length ? program.syllabus : courses[index % courses.length].syllabus,
+                    perks: program.perks?.length ? program.perks : courses[index % courses.length].perks,
+                }));
+                setAvailableCourses(mapped);
+                setSelectedCourse(current => mapped.find(course => course.id === current.id) || mapped[0]);
+            })
+            .catch(error => setRequestError(apiErrorMessage(error)))
+            .finally(() => setLoading(false));
+    }, []);
 
     // Calculate dynamic tuition
     const basePrice = selectedCourse.price;
     const privateMultiplier = classType === 'private' ? 1.6 : 1.0;
     const finalPrice = Math.round(basePrice * privateMultiplier);
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
-        setRegisteredSuccess(true);
-        setTimeout(() => {
-            setRegisteredSuccess(false);
-            setFormData({ name: '', phone: '', email: '', city: '' });
-        }, 3000);
+        setRequestError('');
+        try {
+            await enrollmentService.create(selectedCourse.id);
+            window.location.assign('/portal/dashboard');
+        } catch (error) {
+            setRequestError(apiErrorMessage(error));
+            if (error.status === 401) window.location.assign(`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.hash)}`);
+        }
     };
 
     return (
         <div className="py-10">
+            <RequestStatus loading={loading} error={requestError && !availableCourses.length ? requestError : ''} empty={!loading && !availableCourses.length} />
+            <Notification message={requestError && availableCourses.length ? requestError : ''} />
+            {!loading && availableCourses.length > 0 && <>
             {/* Top Course Switcher Tabs */}
             <div className="flex items-center justify-start lg:justify-center overflow-x-auto pb-4 gap-3 mb-12">
-                {courses.map((course) => (
+                {availableCourses.map((course) => (
                     <button
                         key={course.id}
                         onClick={() => setSelectedCourse(course)}
@@ -390,6 +422,7 @@ export default function AcademyCourses() {
                     </div>
                 </div>
             </div>
+            </>}
         </div>
     );
 }

@@ -24,6 +24,7 @@ import AdminTestimonials from './components/admin/AdminTestimonials.jsx';
 import AdminGallery from './components/admin/AdminGallery.jsx';
 import AdminReports from './components/admin/AdminReports.jsx';
 import AdminSettings from './components/admin/AdminSettings.jsx';
+import ParticipantDashboard from './components/ParticipantDashboard.jsx';
 
 const components = {
     WomenRoster,
@@ -47,6 +48,7 @@ const components = {
     AdminGallery,
     AdminReports,
     AdminSettings,
+    ParticipantDashboard,
 };
 
 

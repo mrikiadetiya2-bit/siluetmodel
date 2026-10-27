@@ -1,183 +1,225 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import AdminLayout from './AdminLayout.jsx';
-import { Download, Eye, Check, X, CheckCircle, CheckCircle2 } from 'lucide-react';
+import { Download, CheckCircle2, XCircle, Clock, AlertCircle, Search, Filter } from 'lucide-react';
+import { api, apiErrorMessage } from '../../services/api.js';
+
+function Toast({ message, type = 'success' }) {
+    if (!message) return null;
+    return (
+        <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm animate-bounce ${type === 'error' ? 'bg-red-700 text-white' : 'bg-[#1c1a17] text-white'}`}>
+            {type === 'error' ? <XCircle className="w-5 h-5 text-red-300" /> : <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
+            <span>{message}</span>
+        </div>
+    );
+}
+
+const statusBadge = (status) => {
+    const map = {
+        paid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        pending: 'bg-amber-50 text-amber-700 border-amber-200',
+        rejected: 'bg-red-50 text-red-700 border-red-200',
+    };
+    const label = { paid: 'Lunas', pending: 'Menunggu', rejected: 'Ditolak' };
+    return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${map[status] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+            {status === 'paid' && <CheckCircle2 className="w-3 h-3" />}
+            {status === 'pending' && <Clock className="w-3 h-3" />}
+            {status === 'rejected' && <XCircle className="w-3 h-3" />}
+            {label[status] || status}
+        </span>
+    );
+};
 
 export default function AdminPayments() {
-    const [selectedPaymentProof, setSelectedPaymentProof] = useState(null);
-    const [toastMessage, setToastMessage] = useState(null);
+    const [payments, setPayments] = useState([]);
+    const [report, setReport] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [toast, setToast] = useState(null);
+    const [filterStatus, setFilterStatus] = useState('semua');
+    const [search, setSearch] = useState('');
+    const [processing, setProcessing] = useState(null);
 
-    const showToast = (msg) => {
-        setToastMessage(msg);
-        setTimeout(() => setToastMessage(null), 3500);
+    const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3500);
     };
 
-    const [payments, setPayments] = useState([
-        { id: 'INV-2026-104', name: 'Nadia Putri', program: 'Basic Modeling Intensive', amount: 'Rp 4.500.000', method: 'BCA Transfer', date: '22 Okt 2026, 09:42', status: 'Lunas', account: '8820491029 a/n Nadia Putri' },
-        { id: 'INV-2026-105', name: 'Alya Maharani', program: 'Advanced Editorial & Posing', amount: 'Rp 6.800.000', method: 'Mandiri Livin', date: '22 Okt 2026, 08:15', status: 'Menunggu', account: '1370018892019 a/n Alya Maharani' },
-        { id: 'INV-2026-106', name: 'Citra Anindya', program: 'Professional Runway & Catwalk', amount: 'Rp 7.500.000', method: 'QRIS BCA', date: '21 Okt 2026, 17:30', status: 'Lunas', account: 'QRIS Settlement' },
-        { id: 'INV-2026-107', name: 'Salsabila Rahma', program: 'Commercial TVC & Audition', amount: 'Rp 5.200.000', method: 'BCA Transfer', date: '20 Okt 2026, 14:10', status: 'Diproses', account: '882041289901 a/n Salsabila Rahma' },
-        { id: 'INV-2026-108', name: 'Kevin Jonathan', program: 'Male Posture & Catwalk', amount: 'Rp 4.900.000', method: 'BNI Mobile', date: '19 Okt 2026, 11:20', status: 'Lunas', account: '0981277361 a/n Kevin J.' }
-    ]);
+    const load = async () => {
+        try {
+            const [paymentsData, reportData] = await Promise.all([
+                api('/api/admin/payments?per_page=100'),
+                api('/api/admin/reports?per_page=1'),
+            ]);
+            setPayments(paymentsData.data || []);
+            setReport(reportData);
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => { load(); }, []);
+
+    const confirm = async (payment) => {
+        if (processing) return;
+        setProcessing(payment.id);
+        try {
+            await api(`/api/admin/payments/${payment.id}/confirm`, { method: 'PATCH' });
+            showToast(`Pembayaran invoice ${payment.invoice} berhasil dikonfirmasi!`);
+            await load();
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        } finally {
+            setProcessing(null);
+        }
+    };
+
+    const reject = async (payment) => {
+        if (processing) return;
+        if (!window.confirm(`Tolak pembayaran dari ${payment.enrollment?.participant?.user?.name || 'peserta'}? Tindakan ini juga akan membatalkan pendaftaran.`)) return;
+        setProcessing(payment.id);
+        try {
+            await api(`/api/admin/payments/${payment.id}/reject`, { method: 'PATCH' });
+            showToast(`Pembayaran invoice ${payment.invoice} ditolak.`);
+            await load();
+        } catch (e) {
+            showToast(apiErrorMessage(e), 'error');
+        } finally {
+            setProcessing(null);
+        }
+    };
+
+    const filtered = useMemo(() => {
+        return payments.filter(p => {
+            const matchStatus = filterStatus === 'semua' || p.status === filterStatus;
+            const term = search.toLowerCase();
+            const matchSearch = !term || (
+                (p.invoice || '').toLowerCase().includes(term) ||
+                (p.enrollment?.participant?.user?.name || '').toLowerCase().includes(term) ||
+                (p.enrollment?.program?.title || '').toLowerCase().includes(term)
+            );
+            return matchStatus && matchSearch;
+        });
+    }, [payments, filterStatus, search]);
+
+    const money = v => `Rp ${Number(v || 0).toLocaleString('id-ID')}`;
 
     return (
         <AdminLayout activeNav="Pembayaran" breadcrumb="Pembayaran">
-            {toastMessage && (
-                <div className="fixed top-5 right-5 z-50 bg-[#1c1a17] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm animate-bounce">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    <span>{toastMessage}</span>
+            <Toast message={toast?.msg} type={toast?.type} />
+
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <span className="text-[10px] tracking-[0.28em] uppercase font-semibold text-[#8c827a]">TRANSAKSI & INVOICE</span>
+                    <h1 className="mt-1 font-serif text-3xl sm:text-4xl text-[#1c1a17] font-normal tracking-tight">Pembayaran & Keuangan</h1>
+                    <p className="mt-1 text-sm text-[#78716c]">Konfirmasi atau tolak pembayaran peserta secara manual.</p>
+                </div>
+                <a href="/api/admin/reports?per_page=100" className="inline-flex items-center gap-2 rounded-xl bg-[#1c1a17] px-4 py-2.5 text-sm text-white hover:bg-black transition">
+                    <Download className="h-4 w-4" />Unduh JSON
+                </a>
+            </div>
+
+            {/* Stats */}
+            {report && (
+                <div className="grid gap-4 sm:grid-cols-3">
+                    {[
+                        { label: 'Pembayaran Pending', value: report.payments.pending, color: 'text-amber-600' },
+                        { label: 'Transaksi Lunas', value: report.payments.paid_count, color: 'text-emerald-600' },
+                        { label: 'Pendapatan Terverifikasi', value: money(report.payments.verified_revenue), color: 'text-[#1c1a17]' },
+                    ].map(({ label, value, color }) => (
+                        <div key={label} className="rounded-2xl border border-[#ede7dd] bg-white p-5">
+                            <span className="text-sm text-[#78716c]">{label}</span>
+                            <p className={`mt-2 text-2xl font-semibold ${color}`}>{value}</p>
+                        </div>
+                    ))}
                 </div>
             )}
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <span className="text-[10.5px] tracking-[0.28em] uppercase font-semibold text-[#8c827a] block mb-1">
-                        TRANSAKSI & INVOICE
-                    </span>
-                    <h1 className="font-serif text-3xl sm:text-4xl text-[#1c1a17] font-normal tracking-tight">
-                        Pembayaran & Keuangan
-                    </h1>
-                    <p className="text-xs sm:text-sm text-[#78716c] mt-1">
-                        Verifikasi bukti transfer pendaftaran, status tagihan invoice, dan riwayat pemasukan.
-                    </p>
+            {/* Filter & Search */}
+            <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-2xl border border-[#ede7dd]">
+                <div className="flex gap-1.5">
+                    {[{ v: 'semua', l: 'Semua' }, { v: 'pending', l: 'Pending' }, { v: 'paid', l: 'Lunas' }, { v: 'rejected', l: 'Ditolak' }].map(({ v, l }) => (
+                        <button key={v} onClick={() => setFilterStatus(v)}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition cursor-pointer ${filterStatus === v ? 'bg-[#1c1a17] text-white' : 'text-[#68625c] hover:bg-[#ede7dd]/50'}`}>
+                            {l}
+                        </button>
+                    ))}
                 </div>
-                <button
-                    onClick={() => showToast('Mengekspor laporan keuangan bulanan...')}
-                    className="inline-flex items-center gap-2 bg-[#1c1a17] hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium shadow-sm transition"
-                >
-                    <Download className="w-4 h-4" />
-                    Download Laporan Keuangan
-                </button>
+                <div className="flex-1 min-w-[200px] relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8c827a]" />
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari nama, invoice, program..."
+                        className="w-full pl-8 pr-3 py-1.5 text-xs border border-[#ede7dd] rounded-xl bg-[#faf8f5] focus:outline-none" />
+                </div>
+                <span className="text-xs text-[#8c827a] ml-auto">{filtered.length} transaksi</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd] shadow-xs">
-                    <span className="text-xs text-[#78716c]">Total Omzet Bulan Ini</span>
-                    <div className="text-2xl font-bold text-[#1c1a17] mt-1">Rp 24.500.000</div>
-                    <span className="text-[10px] text-emerald-600">↗ +8,4% dibanding September</span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd] shadow-xs">
-                    <span className="text-xs text-[#78716c]">Menunggu Verifikasi</span>
-                    <div className="text-2xl font-bold text-amber-600 mt-1">3 Invoice</div>
-                    <span className="text-[10px] text-[#78716c]">Total Rp 11.200.000</span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd] shadow-xs">
-                    <span className="text-xs text-[#78716c]">Transaksi Berhasil</span>
-                    <div className="text-2xl font-bold text-[#1c1a17] mt-1">42 Siswa</div>
-                    <span className="text-[10px] text-emerald-600">Terverifikasi otomatis</span>
-                </div>
-                <div className="bg-white p-4 rounded-2xl border border-[#ede7dd] shadow-xs">
-                    <span className="text-xs text-[#78716c]">Rekening Utama</span>
-                    <div className="text-sm font-bold text-[#1c1a17] mt-1">BCA 8820 9182 301</div>
-                    <span className="text-[10px] text-[#8c827a]">PT Siluet Model Tala</span>
-                </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#ede7dd] overflow-hidden shadow-xs">
-                <div className="p-4 border-b border-[#f3efe8] flex items-center justify-between">
-                    <h3 className="font-semibold text-base text-[#1c1a17]">Daftar Tagihan & Bukti Transfer</h3>
-                    <span className="text-xs text-[#8c827a]">{payments.length} transaksi tercatat</span>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+            {/* Table */}
+            <div className="overflow-x-auto rounded-2xl border border-[#ede7dd] bg-white shadow-xs">
+                {loading ? (
+                    <div className="p-10 text-center text-sm text-[#78716c]">Memuat data pembayaran...</div>
+                ) : filtered.length === 0 ? (
+                    <div className="p-10 text-center text-sm text-[#78716c]">Tidak ada pembayaran yang cocok.</div>
+                ) : (
+                    <table className="w-full text-left text-sm">
                         <thead>
-                            <tr className="border-b border-[#f3efe8] bg-[#faf8f5] text-[11px] font-semibold text-[#8c827a]">
-                                <th className="py-3 px-4">Kode Invoice</th>
-                                <th className="py-3 px-4">Nama Peserta</th>
-                                <th className="py-3 px-4">Program</th>
-                                <th className="py-3 px-4">Metode & Rekening</th>
-                                <th className="py-3 px-4">Nominal</th>
-                                <th className="py-3 px-4">Bukti Transfer</th>
-                                <th className="py-3 px-4">Status</th>
-                                <th className="py-3 px-4 text-right">Aksi</th>
+                            <tr className="border-b bg-[#faf8f5] text-[11px] font-semibold text-[#8c827a]">
+                                <th className="p-3 px-4">Invoice</th>
+                                <th className="p-3 px-4">Peserta</th>
+                                <th className="p-3 px-4">Program</th>
+                                <th className="p-3 px-4">Tanggal</th>
+                                <th className="p-3 px-4">Nominal</th>
+                                <th className="p-3 px-4">Status</th>
+                                <th className="p-3 px-4 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#f5f1eb] text-xs">
-                            {payments.map((p) => (
-                                <tr key={p.id} className="hover:bg-[#fbf9f5] transition">
-                                    <td className="py-3 px-4 font-mono font-bold text-[#1c1a17]">{p.id}</td>
-                                    <td className="py-3 px-4 font-semibold text-[#1c1a17]">{p.name}</td>
-                                    <td className="py-3 px-4 text-[#68625c]">{p.program}</td>
-                                    <td className="py-3 px-4">
-                                        <div className="font-medium text-[#1c1a17]">{p.method}</div>
-                                        <div className="text-[10px] text-[#8c827a]">{p.account}</div>
-                                    </td>
-                                    <td className="py-3 px-4 font-bold text-[#1c1a17]">{p.amount}</td>
-                                    <td className="py-3 px-4">
-                                        <button
-                                            onClick={() => setSelectedPaymentProof(p)}
-                                            className="text-xs text-[#78716c] hover:text-[#1c1a17] flex items-center gap-1 border border-[#ede7dd] px-2.5 py-1 rounded-lg bg-[#faf8f5]"
-                                        >
-                                            <Eye className="w-3.5 h-3.5" />
-                                            <span>Struk</span>
-                                        </button>
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10.5px] font-medium border ${
-                                            p.status === 'Lunas' ? 'bg-[#eaf5ed] text-[#22723c] border-[#d2ead7]' :
-                                            p.status === 'Menunggu' ? 'bg-[#fef7ea] text-[#b47a16] border-[#fbe5bd]' : 'bg-[#eef4fe] text-[#2b6cb0] border-[#d3e3fd]'
-                                        }`}>
-                                            {p.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-3 px-4 text-right">
-                                        {p.status === 'Menunggu' ? (
-                                            <button
-                                                onClick={() => {
-                                                    setPayments(payments.map(x => x.id === p.id ? { ...x, status: 'Lunas' } : x));
-                                                    showToast(`Pembayaran ${p.id} berhasil diverifikasi!`);
-                                                }}
-                                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition"
-                                            >
-                                                Verifikasi
-                                            </button>
-                                        ) : (
-                                            <span className="text-[11px] text-emerald-600 font-semibold flex items-center justify-end gap-1">
-                                                <Check className="w-3.5 h-3.5" /> Terverifikasi
-                                            </span>
-                                        )}
+                        <tbody className="divide-y divide-[#f5f1eb]">
+                            {filtered.map(payment => (
+                                <tr key={payment.id} className="hover:bg-[#fbf9f5] transition">
+                                    <td className="p-3 px-4 font-mono text-xs text-[#1c1a17] font-bold">{payment.invoice || '—'}</td>
+                                    <td className="p-3 px-4 font-medium text-[#1c1a17]">{payment.enrollment?.participant?.user?.name || '—'}</td>
+                                    <td className="p-3 px-4 text-[#68625c]">{payment.enrollment?.program?.title || '—'}</td>
+                                    <td className="p-3 px-4 text-[#68625c] text-xs">{payment.created_at ? new Date(payment.created_at).toLocaleDateString('id-ID') : '—'}</td>
+                                    <td className="p-3 px-4 font-semibold text-[#1c1a17]">{money(payment.amount)}</td>
+                                    <td className="p-3 px-4">{statusBadge(payment.status)}</td>
+                                    <td className="p-3 px-4 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            {payment.status === 'pending' && (
+                                                <>
+                                                    <button
+                                                        disabled={processing === payment.id}
+                                                        onClick={() => confirm(payment)}
+                                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition disabled:opacity-50"
+                                                    >
+                                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                                        Konfirmasi
+                                                    </button>
+                                                    <button
+                                                        disabled={processing === payment.id}
+                                                        onClick={() => reject(payment)}
+                                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-medium transition disabled:opacity-50"
+                                                    >
+                                                        <XCircle className="w-3.5 h-3.5" />
+                                                        Tolak
+                                                    </button>
+                                                </>
+                                            )}
+                                            {payment.status === 'paid' && (
+                                                <span className="text-xs text-emerald-600 font-medium">
+                                                    Lunas {payment.paid_at ? new Date(payment.paid_at).toLocaleDateString('id-ID') : ''}
+                                                </span>
+                                            )}
+                                            {payment.status === 'rejected' && (
+                                                <span className="text-xs text-red-600 font-medium">Ditolak</span>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                </div>
+                )}
             </div>
-
-            {selectedPaymentProof && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#ede7dd] relative">
-                        <div className="flex items-center justify-between pb-3 border-b border-[#ede7dd]">
-                            <div>
-                                <h3 className="font-semibold text-base text-[#1c1a17]">
-                                    Bukti Transfer: {selectedPaymentProof.id}
-                                </h3>
-                                <span className="text-xs text-[#8c827a]">{selectedPaymentProof.name}</span>
-                            </div>
-                            <button onClick={() => setSelectedPaymentProof(null)} className="p-1.5 text-[#8c827a] hover:text-[#1c1a17] rounded-lg">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className="my-4 rounded-xl overflow-hidden border border-[#ede7dd] bg-[#faf8f5] p-4 text-center">
-                            <div className="h-56 bg-white rounded-lg border border-[#ede7dd] flex flex-col items-center justify-center p-4">
-                                <CheckCircle className="w-12 h-12 text-emerald-500 mb-2" />
-                                <span className="text-xs font-bold text-[#1c1a17]">TRANSFER BERHASIL</span>
-                                <span className="text-xl font-bold text-[#1c1a17] mt-1">{selectedPaymentProof.amount}</span>
-                                <span className="text-xs text-[#78716c] mt-1">{selectedPaymentProof.method}</span>
-                                <span className="text-[11px] font-mono text-[#8c827a] mt-1">{selectedPaymentProof.account}</span>
-                                <span className="text-[10px] text-[#9e968f] mt-2">{selectedPaymentProof.date}</span>
-                            </div>
-                        </div>
-                        <div className="flex justify-end gap-2">
-                            <button
-                                onClick={() => setSelectedPaymentProof(null)}
-                                className="px-4 py-2 text-xs font-medium text-[#78716c] hover:bg-[#f7f5f0] rounded-xl"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </AdminLayout>
     );
 }
