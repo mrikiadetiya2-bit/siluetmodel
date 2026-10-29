@@ -6,6 +6,8 @@ use App\Models\PortalRecord;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class AdminRecordsTest extends TestCase
 {
@@ -92,5 +94,30 @@ class AdminRecordsTest extends TestCase
         ]);
         $res->assertStatus(200);
         $this->assertDatabaseHas('portal_records', ['type' => 'settings']);
+    }
+
+    public function test_admin_can_upload_gallery_photo_for_public_audience(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->post('/api/admin/records/gallery', [
+            'status' => 'Aktif',
+            'data' => ['title' => 'Runway Man', 'category' => 'Fashion Show', 'audience' => 'Man', 'date' => '2026', 'age' => '24', 'height' => '186 cm', 'campaigns' => ['Runway', 'Editorial']],
+            'images' => [
+                UploadedFile::fake()->create('runway-1.jpg', 100, 'image/jpeg'),
+                UploadedFile::fake()->create('runway-2.jpg', 100, 'image/jpeg'),
+                UploadedFile::fake()->create('runway-3.jpg', 100, 'image/jpeg'),
+            ],
+        ], ['Accept' => 'application/json']);
+
+        $response->assertCreated()->assertJsonPath('data.audience', 'Man');
+        $response->assertJsonCount(3, 'data.images')->assertJsonPath('data.height', '186 cm');
+        $response->assertJsonPath('data.age', '24');
+        $response->assertJsonPath('data.campaigns.0', 'Runway');
+        $this->assertDatabaseHas('portal_records', ['type' => 'gallery', 'status' => 'Aktif']);
+        $this->assertCount(3, $response->json('data.images'));
+
+        $this->getJson('/api/public/records/gallery')->assertOk()->assertJsonFragment(['audience' => 'Man']);
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Heart, X, CheckCircle, ShieldCheck, Smile, HelpCircle, ChevronDown, ArrowRight } from 'lucide-react';
 
 const kidsTalents = [
@@ -53,22 +53,31 @@ const kidsTalents = [
 ];
 
 export default function KidsRoster() {
+    const [kids, setKids] = useState([]);
+    const [loadingKids, setLoadingKids] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedKid, setSelectedKid] = useState(null);
+    const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [expandedFaq, setExpandedFaq] = useState(null);
 
     const categories = ['All', 'Toddler (3-5 Years)', 'Kids (6-10 Years)', 'Teens (11-15 Years)'];
 
+    useEffect(() => {
+        fetch('/api/public/records/gallery').then(res => res.ok ? res.json() : []).then(records => {
+            setKids(records.filter(r => r.data?.audience === 'Kids').map(r => ({ id: r.id, ...r.data, name: r.data.title, image: r.data.image || r.data.images?.[0], gallery: r.data.images || [r.data.image], age: r.data.age || '', skills: r.data.campaigns || [], campaigns: r.data.campaigns || [] })));
+        }).catch(() => setKids([])).finally(() => setLoadingKids(false));
+    }, []);
+
     const filteredKids = useMemo(() => {
-        return kidsTalents.filter((kid) => {
+        return kids.filter((kid) => {
             const matchesCategory = selectedCategory === 'All' || kid.category === selectedCategory;
             const matchesSearch = kid.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 kid.category.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
-    }, [selectedCategory, searchQuery]);
+    }, [kids, selectedCategory, searchQuery]);
 
     const faqs = [
         {
@@ -138,7 +147,7 @@ export default function KidsRoster() {
                 {filteredKids.map((kid) => (
                     <div
                         key={kid.id}
-                        onClick={() => setSelectedKid(kid)}
+                        onClick={() => { setSelectedKid(kid); setActiveGalleryIndex(0); }}
                         className="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-[#ede7dd] hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
                     >
                         <div className="relative aspect-[3/4] overflow-hidden bg-[#f4f0e8]">
@@ -221,8 +230,17 @@ export default function KidsRoster() {
                             <X className="w-4 h-4" />
                         </button>
 
-                        <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-5">
-                            <img src={selectedKid.image} alt={selectedKid.name} className="w-full h-full object-cover object-top" />
+                        <div className="mb-5">
+                            <div className="aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#f4f0e8] mb-3">
+                                <img src={(selectedKid.gallery || [selectedKid.image])[activeGalleryIndex] || selectedKid.image} alt={selectedKid.name} className="w-full h-full object-cover object-top" />
+                            </div>
+                            <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+                                {(selectedKid.gallery || [selectedKid.image]).map((photo, index) => (
+                                    <button key={index} type="button" onClick={() => setActiveGalleryIndex(index)} aria-label={`Lihat foto ${index + 1}`} aria-pressed={activeGalleryIndex === index} className={`w-14 h-16 rounded-lg overflow-hidden border-2 transition shrink-0 ${activeGalleryIndex === index ? 'border-[#171513]' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+                                        <img src={photo} alt={`${selectedKid.name} thumbnail ${index + 1}`} className="w-full h-full object-cover object-top" />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         <span className="text-[11px] font-semibold text-[#8e857e] tracking-widest uppercase block mb-1">
@@ -238,7 +256,7 @@ export default function KidsRoster() {
                         <div className="mb-6">
                             <h4 className="text-xs font-semibold uppercase text-[#171513] mb-2">Kampanye Terkini:</h4>
                             <ul className="text-xs text-[#6e6761] space-y-1">
-                                {selectedKid.campaigns.map((c, i) => (
+                                {(selectedKid.campaigns || []).map((c, i) => (
                                     <li key={i}>&bull; {c}</li>
                                 ))}
                             </ul>

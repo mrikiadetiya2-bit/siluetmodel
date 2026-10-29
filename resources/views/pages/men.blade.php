@@ -54,4 +54,5 @@
 
 <!-- React Component Mount Point -->
 <div data-react-component="MenRoster"></div>
+<div data-react-component="HighlightsGallery" data-props='{"audience":"Man"}'></div>
 @endsection

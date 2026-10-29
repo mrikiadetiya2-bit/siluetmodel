@@ -56,6 +56,6 @@
     </div>
 </section>
 
-<!-- React Component Mount Point -->
+<!-- Galeri berisi data yang dimasukkan melalui panel admin -->
 <div data-react-component="HighlightsGallery"></div>
 @endsection

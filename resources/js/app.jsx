@@ -30,7 +30,7 @@ const components = {
     WomenRoster,
     MenRoster,
     KidsRoster,
-    HighlightsGallery,
+    HighlightsGallery: (props) => <HighlightsGallery {...props} />,
     AcademyCourses,
     MentorShowcase,
     AboutInteractive,

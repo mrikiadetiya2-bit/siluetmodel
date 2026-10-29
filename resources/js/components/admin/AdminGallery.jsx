@@ -4,6 +4,7 @@ import { UploadCloud, CheckCircle2, XCircle, Edit3, Trash2, X, Image as ImageIco
 import { api, apiErrorMessage } from '../../services/api.js';
 
 const CATEGORIES = ['Fashion Show', 'Photoshoot Studio', 'Masterclass', 'Backstage', 'Wisuda Alumni'];
+const AUDIENCES = ['Man', 'Women', 'Kids'];
 
 function Toast({ message, type = 'success' }) {
     if (!message) return null;
@@ -15,10 +16,11 @@ function Toast({ message, type = 'success' }) {
     );
 }
 
-const emptyForm = { title: '', image: '', category: CATEGORIES[0], date: '' };
+const emptyForm = { title: '', images: [], category: CATEGORIES[0], audience: 'Women', date: '', age: '', height: '', campaigns: '' };
 
 export default function AdminGallery() {
     const [galleryFilter, setGalleryFilter] = useState('Semua');
+    const [audienceFilter, setAudienceFilter] = useState('Semua');
     const [galleryItems, setGalleryItems] = useState([]);
     const [toast, setToast] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
@@ -53,7 +55,7 @@ export default function AdminGallery() {
 
     const openEdit = (item) => {
         setEditingItem(item);
-        setForm({ title: item.title || '', image: item.image || '', category: item.category || CATEGORIES[0], date: item.date || '' });
+        setForm({ ...emptyForm, ...item, images: [], currentImages: item.images || [item.image].filter(Boolean), campaigns: Array.isArray(item.campaigns) ? item.campaigns.join('\n') : item.campaigns || '' });
         setModalOpen(true);
     };
 
@@ -61,18 +63,33 @@ export default function AdminGallery() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if ((!editingItem && form.images.length !== 3) || (form.images.length > 0 && form.images.length !== 3)) {
+            showToast('Pilih tepat 3 foto.', 'error');
+            return;
+        }
         setSubmitting(true);
         try {
+            const data = { ...form, images: undefined, currentImages: undefined };
+            delete data.currentImage;
+            data.campaigns = Array.isArray(form.campaigns) ? form.campaigns : form.campaigns.split('\n').map(line => line.trim()).filter(Boolean);
             if (editingItem) {
+                const updateBody = new FormData();
+                Object.entries(data).filter(([, value]) => value !== undefined).forEach(([key, value]) => updateBody.append(`data[${key}]`, value));
+                form.images.forEach((image, index) => updateBody.append(`images[${index}]`, image));
+                updateBody.append('_method', 'PUT');
                 await api(`/api/admin/records/${editingItem.id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ data: form }),
+                    method: 'POST',
+                    body: updateBody,
                 });
                 showToast('Media berhasil diperbarui!');
             } else {
+                const body = new FormData();
+                Object.entries(data).filter(([, value]) => value !== undefined).forEach(([key, value]) => body.append(`data[${key}]`, value));
+                form.images.forEach((image, index) => body.append(`images[${index}]`, image));
+                body.append('status', 'Aktif');
                 await api('/api/admin/records/gallery', {
                     method: 'POST',
-                    body: JSON.stringify({ data: form, status: 'Aktif' }),
+                    body,
                 });
                 showToast('Media berhasil ditambahkan!');
             }
@@ -96,7 +113,10 @@ export default function AdminGallery() {
         }
     };
 
-    const filtered = galleryItems.filter(item => galleryFilter === 'Semua' || item.category === galleryFilter);
+    const filtered = galleryItems.filter(item =>
+        (galleryFilter === 'Semua' || item.category === galleryFilter)
+        && (audienceFilter === 'Semua' || (item.audience || 'Women') === audienceFilter)
+    );
 
     return (
         <AdminLayout activeNav="Galeri" breadcrumb="Galeri">
@@ -124,6 +144,16 @@ export default function AdminGallery() {
                 <span className="ml-auto text-xs text-[#8c827a] self-center">{filtered.length} media</span>
             </div>
 
+            <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-[#68625c]">Halaman:</span>
+                {['Semua', ...AUDIENCES].map(audience => (
+                    <button key={audience} onClick={() => setAudienceFilter(audience)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition ${audienceFilter === audience ? 'bg-[#1c1a17] text-white' : 'bg-white border border-[#ede7dd] text-[#68625c]'}`}>
+                        {audience === 'Semua' ? 'Semua' : audience}
+                    </button>
+                ))}
+            </div>
+
             {loading ? (
                 <div className="p-10 text-center text-sm text-[#78716c]">Memuat galeri...</div>
             ) : (
@@ -131,8 +161,8 @@ export default function AdminGallery() {
                     {filtered.map((g) => (
                         <div key={g.id} className="bg-white rounded-2xl border border-[#ede7dd] overflow-hidden shadow-xs hover:shadow-md transition group">
                             <div className="relative h-52 overflow-hidden bg-[#eee8dd]">
-                                {g.image ? (
-                                    <img src={g.image} alt={g.title}
+                                {(g.images?.[0] || g.image) ? (
+                                    <img src={g.images?.[0] || g.image} alt={g.title}
                                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                         onError={e => { e.target.style.display = 'none'; }} />
                                 ) : (
@@ -141,7 +171,7 @@ export default function AdminGallery() {
                                     </div>
                                 )}
                                 <span className="absolute top-3 left-3 text-[10px] font-semibold bg-black/60 text-white px-2 py-0.5 rounded-md backdrop-blur-xs">
-                                    {g.category}
+                                    {g.category} · {g.audience || 'Women'}
                                 </span>
                                 {/* Hover Actions */}
                                 <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition">
@@ -187,16 +217,25 @@ export default function AdminGallery() {
                                     placeholder="Judul foto / album" />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-[#1c1a17] mb-1">URL Gambar *</label>
-                                <input required value={form.image} onChange={e => setForm({ ...form, image: e.target.value })}
+                                <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Upload 3 Foto {editingItem ? '(kosongkan untuk tetap memakai foto lama)' : '*'}</label>
+                                <input required={!editingItem} type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={e => setForm({ ...form, images: Array.from(e.target.files || []) })}
                                     className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none"
-                                    placeholder="https://... atau /images/..." />
-                                {form.image && (
-                                    <img src={form.image} alt="preview" className="mt-2 h-24 w-full object-cover rounded-lg border border-[#ede7dd]"
-                                        onError={e => e.target.style.display = 'none'} />
-                                )}
+                                    />
+                                <div className="mt-2 grid grid-cols-3 gap-2">
+                                    {(form.images.length ? form.images.map(file => URL.createObjectURL(file)) : form.currentImages || []).map((src, index) =>
+                                        <img key={index} src={src} alt={`Foto ${index + 1}`} className="h-20 w-full object-cover rounded-lg border border-[#ede7dd]" />
+                                    )}
+                                </div>
+                                {form.images.length > 0 && form.images.length !== 3 && <p className="text-xs text-red-600">Pilih tepat 3 foto.</p>}
                             </div>
                             <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Tampilkan di</label>
+                                    <select value={form.audience} onChange={e => setForm({ ...form, audience: e.target.value })}
+                                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none">
+                                        {AUDIENCES.map(audience => <option key={audience} value={audience}>{audience}</option>)}
+                                    </select>
+                                </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Kategori</label>
                                     <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
@@ -210,6 +249,18 @@ export default function AdminGallery() {
                                         className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none"
                                         placeholder="25 Oktober 2026" />
                                 </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    ['age', 'Umur'], ['height', 'Tinggi'],
+                                ].map(([key, label]) => <div key={key}>
+                                    <label className="block text-xs font-semibold text-[#1c1a17] mb-1">{label}</label>
+                                    <input type={key === 'age' ? 'number' : 'text'} min={key === 'age' ? 1 : undefined} max={key === 'age' ? 120 : undefined} value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none" />
+                                </div>)}
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-[#1c1a17] mb-1">Pengalaman & Kampanye (satu per baris)</label>
+                                <textarea rows="3" value={Array.isArray(form.campaigns) ? form.campaigns.join('\n') : form.campaigns} onChange={e => setForm({ ...form, campaigns: e.target.value })} className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs focus:outline-none" />
                             </div>
                             <div className="pt-3 flex items-center justify-end gap-3">
                                 <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-medium text-[#78716c]">Batal</button>

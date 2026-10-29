@@ -149,6 +149,14 @@
             align-items: center;
         }
 
+        @media (min-width: 1536px) {
+            .nav-pill-item {
+                padding-inline: 0.58rem;
+                font-size: 0.8125rem;
+                white-space: nowrap;
+            }
+        }
+
         .nav-pill-item:hover {
             color: #171513;
             background: rgba(255, 255, 255, 0.65);
@@ -304,91 +312,104 @@
 
 
     <!-- ================= HERO SECTION ================= -->
-    <section id="beranda" class="relative bg-[#f7f4ee] overflow-hidden pt-24 sm:pt-28 lg:pt-32">
-        <div class="max-w-[1360px] mx-auto px-6 lg:px-14">
-            <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[580px] lg:min-h-[620px] items-stretch">
-                
-                <!-- Left Hero Content -->
-                <div class="lg:col-span-6 pt-12 pb-12 lg:pt-16 lg:pb-16 flex flex-col justify-between z-10">
-                    <div>
-                        <!-- Eyebrow -->
-                        <span class="text-[11.5px] uppercase tracking-[0.28em] text-[#8e857e] font-sans-luxury font-medium block mb-5">
-                            M O R E &nbsp; T H A N &nbsp; A &nbsp; M O D E L
-                        </span>
+    <section id="beranda" class="relative bg-[#f7f4ee] overflow-hidden pt-28 sm:pt-32 pb-16 lg:pb-20">
 
-                        <!-- Main Headline -->
-                        <h1 class="font-serif-luxury text-5xl sm:text-6xl lg:text-[72px] font-normal text-[#171513] leading-[1.08] tracking-tight mb-6">
-                            Shape Your<br>
-                            Presence
-                        </h1>
+        <!-- Subtle ambient radial light -->
+        <div class="absolute -top-32 right-10 w-[700px] h-[700px] rounded-full pointer-events-none blur-3xl opacity-60" style="background:radial-gradient(ellipse at center, rgba(234,222,204,0.7) 0%, transparent 70%);"></div>
 
-                        <!-- Subtitle -->
-                        <p class="text-[#6e6761] text-[15px] sm:text-[16px] leading-[1.7] max-w-[450px] mb-8 font-sans-luxury">
-                            Siluet Model Tala adalah tempat untuk mengembangkan bakat, kepercayaan diri, dan profesionalisme di dunia modeling.
-                        </p>
+        <div class="max-w-[1380px] mx-auto px-6 lg:px-14 relative z-10">
+            
+            <!-- TOP HERO ROW -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center min-h-[480px] lg:min-h-[540px]">
 
-                        <!-- CTA Buttons -->
-                        <div class="flex flex-wrap items-center gap-3.5 mb-14">
-                            <a href="#program" class="inline-flex items-center gap-2.5 bg-[#171513] hover:bg-[#2c2824] text-white px-6 py-3 rounded-[6px] text-[13.5px] font-medium font-sans-luxury transition group shadow-sm">
-                                <span>Lihat Program</span>
-                                <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                                </svg>
-                            </a>
-                            <a href="#tentang" class="inline-flex items-center bg-[#f7f4ee] hover:bg-white border border-[#ded8cf] text-[#171513] px-6 py-3 rounded-[6px] text-[13.5px] font-medium font-sans-luxury transition shadow-sm">
-                                Tentang Kami
-                            </a>
-                        </div>
+                <!-- Left Content Column -->
+                <div class="lg:col-span-5 flex flex-col justify-center z-10 pr-0 lg:pr-4">
+
+                    <!-- Eyebrow with dash line -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="w-8 h-[1.5px] bg-[#8e857e]/60"></span>
+                        <span class="text-[11px] uppercase tracking-[0.28em] text-[#8e857e] font-sans-luxury font-semibold">MORE THAN A MODEL</span>
+                    </div>
+
+                    <!-- Main Headline -->
+                    <h1 class="font-serif-luxury text-5xl sm:text-6xl lg:text-[76px] font-normal text-[#171513] leading-[1.05] tracking-tight mb-6">
+                        Shape Your<br>
+                        Presence
+                    </h1>
+
+                    <!-- Subtitle -->
+                    <p class="text-[#6e6761] text-[15px] sm:text-[16px] leading-[1.7] max-w-[430px] mb-8 font-sans-luxury">
+                        Siluet Model Tala adalah tempat untuk mengembangkan bakat, kepercayaan diri, dan profesionalisme di dunia modeling.
+                    </p>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-wrap items-center gap-3.5 mb-12">
+                        <a href="#program" class="inline-flex items-center gap-2.5 bg-[#171513] hover:bg-[#2c2824] text-white px-7 py-3.5 rounded-full text-[13px] font-medium font-sans-luxury transition-all duration-300 shadow-lg shadow-black/10 hover:-translate-y-0.5 group">
+                            <span>Lihat Program</span>
+                            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                        <a href="#tentang" class="inline-flex items-center bg-transparent hover:bg-white/70 border border-[#d8d0c2] text-[#171513] px-7 py-3.5 rounded-full text-[13px] font-medium font-sans-luxury transition-all duration-300 hover:-translate-y-0.5 shadow-sm">
+                            Tentang Kami
+                        </a>
                     </div>
 
                     <!-- Hero Stats -->
-                    <div class="grid grid-cols-3 gap-6 pt-6 border-t border-[#ede7dd]/80 max-w-[480px]">
+                    <div class="grid grid-cols-3 gap-6 pt-6 border-t border-[#ede7dd]/90 max-w-[450px]">
                         <div>
                             <div class="font-serif-luxury text-3xl sm:text-4xl text-[#171513] font-normal tracking-tight">500+</div>
-                            <div class="text-[12px] text-[#8e857e] font-sans-luxury mt-0.5">Alumni Sukses</div>
+                            <div class="text-[10.5px] text-[#8e857e] font-sans-luxury uppercase tracking-wider mt-1">Alumni Sukses</div>
                         </div>
                         <div>
                             <div class="font-serif-luxury text-3xl sm:text-4xl text-[#171513] font-normal tracking-tight">20+</div>
-                            <div class="text-[12px] text-[#8e857e] font-sans-luxury mt-0.5">Program Pelatihan</div>
+                            <div class="text-[10.5px] text-[#8e857e] font-sans-luxury uppercase tracking-wider mt-1">Program Pelatihan</div>
                         </div>
                         <div>
                             <div class="font-serif-luxury text-3xl sm:text-4xl text-[#171513] font-normal tracking-tight">95%</div>
-                            <div class="text-[12px] text-[#8e857e] font-sans-luxury mt-0.5">Kepuasan Peserta</div>
+                            <div class="text-[10.5px] text-[#8e857e] font-sans-luxury uppercase tracking-wider mt-1">Kepuasan Peserta</div>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- Right Hero Imagery -->
-                <div class="lg:col-span-6 relative flex items-end justify-center lg:justify-end overflow-hidden select-none">
+                <!-- Right Imagery Column: Arch + Model + Slide Nav -->
+                <div class="lg:col-span-7 relative flex items-end justify-center min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] select-none">
                     
-                    <!-- Full Composition Image -->
-                    <div class="relative w-full h-full flex items-end justify-center lg:justify-end">
-                        <img 
-                            src="{{ asset('images/site/hero_right_full.png') }}" 
-                            alt="Siluet Model Tala" 
-                            class="w-full max-w-[620px] h-auto max-h-[580px] lg:max-h-[620px] object-contain object-bottom"
-                        />
+                    <!-- Outer Architectural Arch -->
+                    <div class="absolute bottom-0 w-[380px] sm:w-[460px] lg:w-[500px] h-[430px] sm:h-[490px] lg:h-[540px] rounded-t-full bg-gradient-to-b from-[#eadecc]/60 via-[#eee7db]/35 to-transparent border-t border-x border-[#e4d8c6]/70 pointer-events-none"></div>
 
-                        <!-- Interactive Carousel Overlay on bottom right -->
-                        <div class="absolute bottom-6 right-2 sm:right-6 flex items-center space-x-4 bg-white/40 backdrop-blur-sm px-4 py-2 rounded-full border border-white/50">
-                            <!-- Indicator -->
-                            <div class="text-[12px] font-sans-luxury text-[#544e47] tracking-wider" id="hero-slide-num">
-                                <span id="current-slide">01</span> &nbsp;/&nbsp; 03
-                            </div>
+                    <!-- Inner Decorative Arch -->
+                    <div class="absolute bottom-0 w-[330px] sm:w-[410px] lg:w-[450px] h-[390px] sm:h-[450px] lg:h-[490px] rounded-t-full border-t border-x border-[#ded2c0]/45 pointer-events-none"></div>
 
-                            <!-- Buttons -->
-                            <div class="flex items-center space-x-2">
-                                <button type="button" id="hero-prev" class="w-8 h-8 rounded-full border border-[#d8d2c9] bg-white hover:bg-[#f7f4ee] flex items-center justify-center text-[#171513] transition active:scale-95 shadow-2xs" aria-label="Previous Slide">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                                    </svg>
-                                </button>
-                                <button type="button" id="hero-next" class="w-8 h-8 rounded-full border border-[#d8d2c9] bg-white hover:bg-[#f7f4ee] flex items-center justify-center text-[#171513] transition active:scale-95 shadow-2xs" aria-label="Next Slide">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
-                            </div>
+                    <!-- Central Model Cutout Carousel -->
+                    <div class="hero-carousel-container relative w-full h-[460px] sm:h-[520px] lg:h-[580px] flex items-end justify-center z-10">
+
+                        <!-- Slide 1: Nadia (Blue Hijab & White Cape) -->
+                        <div class="hero-slide absolute bottom-0 flex justify-center items-end transition-opacity duration-700 ease-in-out opacity-100 z-10" data-slide="1">
+                            <img 
+                                src="{{ asset('images/site/cutout_nadia.png') }}" 
+                                alt="Siluet Model Tala - Nadia Putri" 
+                                class="h-[430px] sm:h-[490px] lg:h-[550px] w-auto max-w-full object-contain object-bottom drop-shadow-md"
+                            />
+                        </div>
+
+                        <!-- Slide 2: Marwa (Black Blazer) -->
+                        <div class="hero-slide absolute bottom-0 flex justify-center items-end transition-opacity duration-700 ease-in-out opacity-0 z-0 pointer-events-none" data-slide="2">
+                            <img 
+                                src="{{ asset('images/site/cutout_marwa.png') }}" 
+                                alt="Siluet Model Tala - Marwa" 
+                                class="h-[420px] sm:h-[480px] lg:h-[540px] w-auto max-w-full object-contain object-bottom drop-shadow-md"
+                            />
+                        </div>
+
+                        <!-- Slide 3: Aura (Black Turtleneck) -->
+                        <div class="hero-slide absolute bottom-0 flex justify-center items-end transition-opacity duration-700 ease-in-out opacity-0 z-0 pointer-events-none" data-slide="3">
+                            <img 
+                                src="{{ asset('images/site/cutout_aura.png') }}" 
+                                alt="Siluet Model Tala - Aura Clarissa" 
+                                class="h-[420px] sm:h-[480px] lg:h-[530px] w-auto max-w-full object-contain object-bottom drop-shadow-md"
+                            />
                         </div>
 
                     </div>
@@ -396,6 +417,119 @@
                 </div>
 
             </div>
+
+            <!-- BOTTOM TWO FEATURE CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mt-12 sm:mt-16 z-20 relative">
+
+                <!-- Card 1: NEW FACES -->
+                <div class="group bg-[#ece5d8]/85 hover:bg-[#eae2d5] transition-all duration-300 backdrop-blur-md rounded-[28px] border border-white/60 p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between min-h-[230px] sm:min-h-[250px] shadow-sm">
+                    
+                    <!-- Large Faint Watermark Text -->
+                    <div class="absolute left-6 bottom-4 select-none pointer-events-none font-serif-luxury text-4xl sm:text-5xl font-light text-[#ded6c7]/70 leading-none tracking-tight">
+                        NEW<br>FACES
+                    </div>
+
+                    <!-- Top Content -->
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-2.5">
+                            <span class="w-5 h-px bg-[#8e857e]/70"></span>
+                            <span class="text-[10px] uppercase tracking-[0.25em] text-[#8e857e] font-sans-luxury font-semibold">NEW FACES</span>
+                        </div>
+                        <p class="text-[#6e6761] text-[13px] sm:text-[14px] leading-relaxed max-w-[210px] sm:max-w-[240px] font-sans-luxury">
+                            Temukan talenta baru dengan potensi luar biasa.
+                        </p>
+                    </div>
+
+                    <!-- Bottom Action Link -->
+                    <div class="relative z-10 pt-8 sm:pt-10">
+                        <a href="#highlights" class="inline-flex items-center gap-3 group/link">
+                            <span class="w-8 h-8 rounded-full bg-[#171513] group-hover/link:bg-[#2c2824] text-white flex items-center justify-center transition shadow-sm">
+                                <svg class="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </span>
+                            <span class="text-[12.5px] font-medium text-[#171513] group-hover/link:opacity-75 transition font-sans-luxury">
+                                Lihat Selengkapnya
+                            </span>
+                        </a>
+                    </div>
+
+                    <!-- Model Cutout: Aura Clarissa -->
+                    <img 
+                        src="{{ asset('images/site/cutout_aura.png') }}" 
+                        alt="New Faces - Aura Clarissa" 
+                        class="absolute right-0 sm:right-2 bottom-0 h-[92%] sm:h-[105%] max-w-[48%] object-contain object-bottom pointer-events-none select-none z-10 drop-shadow-sm"
+                    />
+                </div>
+
+                <!-- Card 2: MODEL PORTFOLIO -->
+                <div class="group bg-[#ece5d8]/85 hover:bg-[#eae2d5] transition-all duration-300 backdrop-blur-md rounded-[28px] border border-white/60 p-6 sm:p-8 pr-28 sm:pr-32 relative overflow-hidden flex flex-col justify-between min-h-[230px] sm:min-h-[250px] shadow-sm">
+
+                    <!-- Top Content -->
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-2.5">
+                            <span class="w-5 h-px bg-[#8e857e]/70"></span>
+                            <span class="text-[10px] uppercase tracking-[0.25em] text-[#8e857e] font-sans-luxury font-semibold">MODEL PORTFOLIO</span>
+                        </div>
+                        <p class="text-[#6e6761] text-[13px] sm:text-[14px] leading-relaxed max-w-[210px] sm:max-w-[240px] font-sans-luxury">
+                            Eksplorasi karya dan perjalanan para model Siluet Model Tala.
+                        </p>
+                    </div>
+
+                    <!-- Bottom Action Link -->
+                    <div class="relative z-10 pt-8 sm:pt-10">
+                        <a href="#highlights" class="inline-flex items-center gap-3 group/link">
+                            <span class="w-8 h-8 rounded-full bg-[#ded6c7] group-hover/link:bg-[#171513] text-[#171513] group-hover/link:text-white flex items-center justify-center transition shadow-2xs">
+                                <svg class="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                </svg>
+                            </span>
+                            <span class="text-[12.5px] font-medium text-[#171513] group-hover/link:opacity-75 transition font-sans-luxury">
+                                Explore Models ↗
+                            </span>
+                        </a>
+                    </div>
+
+                    <!-- Model Cutout: Marwa -->
+                    <img 
+                        src="{{ asset('images/site/cutout_marwa.png') }}" 
+                        alt="Model Portfolio - Marwa" 
+                        class="absolute right-[88px] sm:right-[108px] lg:right-[120px] bottom-0 h-[100%] sm:h-[110%] max-w-[46%] object-contain object-bottom pointer-events-none select-none z-10 drop-shadow-sm"
+                    />
+
+                    <!-- Far Right Vertical Strip -->
+                    <div class="absolute right-0 top-0 bottom-0 w-24 sm:w-28 border-l border-[#ded6c7]/80 bg-[#e4dcce]/50 flex flex-col justify-between items-center py-4 px-2 select-none z-20">
+                        <!-- Background Silhouette Overlay -->
+                        <img 
+                            src="{{ asset('images/site/hero_slide_3.png') }}" 
+                            alt="" 
+                            class="absolute inset-0 w-full h-full object-cover object-center opacity-15 grayscale pointer-events-none"
+                        />
+
+                        <!-- Top Keywords List -->
+                        <div class="relative z-10 space-y-1 text-center pt-1">
+                            <div class="text-[8.5px] uppercase tracking-[0.2em] text-[#7d756d] font-sans-luxury font-semibold">TALENT</div>
+                            <div class="text-[8.5px] uppercase tracking-[0.2em] text-[#7d756d] font-sans-luxury font-semibold">DISCIPLINE</div>
+                            <div class="text-[8.5px] uppercase tracking-[0.2em] text-[#7d756d] font-sans-luxury font-semibold">CONFIDENCE</div>
+                            <div class="text-[8.5px] uppercase tracking-[0.2em] text-[#7d756d] font-sans-luxury font-semibold">OPPORTUNITY</div>
+                            <div class="w-6 h-px bg-[#8e857e]/50 mx-auto !my-2"></div>
+                        </div>
+
+                        <!-- Bottom Brand Mark -->
+                        <div class="relative z-10 text-center pb-1">
+                            <div class="font-serif-luxury text-[11px] font-bold tracking-widest text-[#171513] uppercase leading-none">
+                                SILUET
+                            </div>
+                            <div class="text-[7.5px] font-sans-luxury tracking-[0.25em] text-[#8e857e] font-medium uppercase mt-0.5">
+                                MODEL TALA
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
     </section>
 
@@ -833,12 +967,44 @@
                     </a>
 
                     <!-- About Image Composition -->
-                    <div class="w-full max-w-[540px]">
-                        <img 
-                            src="{{ asset('images/site/about_composite.png') }}" 
-                            alt="Tentang Siluet Model Tala" 
-                            class="w-full h-auto object-contain rounded-xl shadow-xs"
-                        />
+                    <div class="relative w-full max-w-[540px] aspect-[16/9.5] rounded-3xl overflow-hidden shadow-xl border border-[#ede7dd] bg-[#f4f0e8] select-none group">
+                        
+                        <!-- Photos Layout Grid -->
+                        <div class="absolute inset-0 flex">
+                            <!-- Left Photo: Marwa in Black Blazer -->
+                            <div class="w-[60%] h-full relative overflow-hidden bg-[#ded8cf]">
+                                <img 
+                                    src="{{ asset('images/site/hero_slide_3.png') }}" 
+                                    alt="Siluet Model Tala Talent" 
+                                    class="w-full h-full object-cover object-[center_20%] group-hover:scale-105 transition-transform duration-700"
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent pointer-events-none"></div>
+                            </div>
+
+                            <!-- Right Photo: Talent in White Outfit -->
+                            <div class="w-[40%] h-full relative overflow-hidden border-l border-white/50 bg-[#e6e0d5]">
+                                <img 
+                                    src="{{ asset('images/site/hero_slide_1.png') }}" 
+                                    alt="Siluet Model Tala Talent" 
+                                    class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                                />
+                                <div class="absolute inset-0 bg-black/5 pointer-events-none"></div>
+                            </div>
+                        </div>
+
+                        <!-- Accent Bar behind Badge -->
+                        <div class="absolute bottom-[4.8rem] sm:bottom-[5.5rem] left-5 sm:left-7 w-12 sm:w-16 h-2 rounded-full bg-[#c5baa8]/80 z-10"></div>
+
+                        <!-- Floating Badge Card: 20+ Tahun Pengalaman -->
+                        <div class="absolute bottom-4 sm:bottom-6 left-6 sm:left-9 z-20 bg-white/95 backdrop-blur-md px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border border-white/90 shadow-xl max-w-[170px] sm:max-w-[200px]">
+                            <div class="font-serif-luxury text-3xl sm:text-4xl font-normal text-[#171513] leading-none mb-1.5 tracking-tight">
+                                20+
+                            </div>
+                            <div class="text-[11px] sm:text-[12px] font-sans-luxury text-[#78716c] font-medium uppercase tracking-wider leading-snug">
+                                Tahun<br>Pengalaman
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -927,22 +1093,79 @@
 
 @push('scripts')
 <script>
-        // Hero Slide Indicator interactive
+        // Hero Slide Indicator interactive & switcher
         let currentSlide = 1;
         const totalSlides = 3;
-        const slideEl = document.getElementById('current-slide');
-        const prevHeroBtn = document.getElementById('hero-prev');
-        const nextHeroBtn = document.getElementById('hero-next');
+        const heroSlides = document.querySelectorAll('.hero-slide');
+        const heroDotBtns = document.querySelectorAll('.hero-dot-btn');
 
-        if (prevHeroBtn && nextHeroBtn && slideEl) {
-            prevHeroBtn.addEventListener('click', () => {
-                currentSlide = currentSlide > 1 ? currentSlide - 1 : totalSlides;
-                slideEl.textContent = currentSlide < 10 ? '0' + currentSlide : currentSlide;
+        function setHeroSlide(index) {
+            currentSlide = index;
+            // Update slides
+            heroSlides.forEach((slide) => {
+                const slideNum = parseInt(slide.getAttribute('data-slide'), 10);
+                if (slideNum === currentSlide) {
+                    slide.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+                    slide.classList.add('opacity-100', 'z-10');
+                } else {
+                    slide.classList.remove('opacity-100', 'z-10');
+                    slide.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+                }
             });
-            nextHeroBtn.addEventListener('click', () => {
-                currentSlide = currentSlide < totalSlides ? currentSlide + 1 : 1;
-                slideEl.textContent = currentSlide < 10 ? '0' + currentSlide : currentSlide;
+
+            // Update vertical dots
+            heroDotBtns.forEach((btn) => {
+                const btnSlide = parseInt(btn.getAttribute('data-slide'), 10);
+                const numEl = btn.querySelector('.hero-dot-num');
+                const dotEl = btn.querySelector('.hero-dot-circle');
+                if (btnSlide === currentSlide) {
+                    if (numEl) {
+                        numEl.classList.remove('text-[#a89f95]', 'font-medium');
+                        numEl.classList.add('text-[#171513]', 'font-bold');
+                    }
+                    if (dotEl) {
+                        dotEl.classList.remove('bg-transparent');
+                        dotEl.classList.add('bg-[#171513]');
+                    }
+                } else {
+                    if (numEl) {
+                        numEl.classList.remove('text-[#171513]', 'font-bold');
+                        numEl.classList.add('text-[#a89f95]', 'font-medium');
+                    }
+                    if (dotEl) {
+                        dotEl.classList.remove('bg-[#171513]');
+                        dotEl.classList.add('bg-transparent');
+                    }
+                }
             });
+        }
+
+        // Click handlers on vertical dots
+        heroDotBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const targetSlide = parseInt(btn.getAttribute('data-slide'), 10);
+                setHeroSlide(targetSlide);
+                resetAutoSlide();
+            });
+        });
+
+        let autoSlideTimer = setInterval(() => {
+            const next = currentSlide < totalSlides ? currentSlide + 1 : 1;
+            setHeroSlide(next);
+        }, 5500);
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideTimer);
+            autoSlideTimer = setInterval(() => {
+                const next = currentSlide < totalSlides ? currentSlide + 1 : 1;
+                setHeroSlide(next);
+            }, 5500);
+        }
+
+        const heroContainer = document.querySelector('.hero-carousel-container');
+        if (heroContainer) {
+            heroContainer.addEventListener('mouseenter', () => clearInterval(autoSlideTimer));
+            heroContainer.addEventListener('mouseleave', resetAutoSlide);
         }
 
         // Testimonial Carousel Data

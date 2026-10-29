@@ -14,7 +14,7 @@
             </a>
 
             <!-- 2. Middle: Desktop Nav Links -->
-            <nav class="hidden md:flex items-center space-x-0.5 lg:space-x-1 font-sans-luxury relative z-10 bg-black/[0.025] p-1 rounded-full border border-black/[0.03]">
+            <nav class="hidden lg:flex min-w-0 flex-1 items-center justify-center space-x-0.5 font-sans-luxury relative z-10 bg-black/[0.025] p-1 rounded-full border border-black/[0.03]">
                 <a href="{{ url('/women') }}" class="nav-pill-item {{ request()->is('women*') ? 'active' : '' }}" data-nav-target="women">Women</a>
                 <a href="{{ url('/men') }}" class="nav-pill-item {{ request()->is('men*') ? 'active' : '' }}" data-nav-target="men">Men</a>
                 <a href="{{ url('/kids') }}" class="nav-pill-item {{ request()->is('kids*') ? 'active' : '' }}" data-nav-target="kids">Kids</a>
@@ -28,25 +28,18 @@
 
             <!-- 3. Right: Actions -->
             <div class="flex items-center space-x-2 sm:space-x-3 relative z-10 shrink-0">
-                <!-- Search Icon Button -->
-                <button type="button" id="search-btn" class="glass-icon-btn focus:outline-none" aria-label="Cari di Siluet Model Tala">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
-                    </svg>
-                </button>
-
                 <!-- Masuk (Desktop) -->
-                <a href="{{ url('/login') }}" class="hidden sm:inline-flex items-center justify-center text-[13.5px] font-medium font-sans-luxury text-[#171513] hover:text-[#6e6761] px-3.5 py-1.5 rounded-full hover:bg-white/50 transition duration-200 {{ request()->is('login*') ? 'bg-white/70 font-semibold' : '' }}">
+                <a href="{{ url('/login') }}" class="hidden 2xl:inline-flex items-center justify-center text-[13.5px] font-medium font-sans-luxury text-[#171513] hover:text-[#6e6761] px-3.5 py-1.5 rounded-full hover:bg-white/50 transition duration-200 {{ request()->is('login*') ? 'bg-white/70 font-semibold' : '' }}">
                     Member Login
                 </a>
 
                 <!-- Daftar Sekarang -->
-                <a href="{{ url('/register') }}" class="glass-cta-btn font-sans-luxury text-center">
+                <a href="{{ url('/register') }}" class="hidden 2xl:inline-flex glass-cta-btn font-sans-luxury text-center">
                     <span>Join Academy</span>
                 </a>
 
                 <!-- Mobile Hamburger Toggle -->
-                <button type="button" id="mobile-toggle" class="md:hidden glass-icon-btn focus:outline-none" aria-label="Buka Menu" aria-expanded="false">
+                <button type="button" id="mobile-toggle" class="2xl:hidden glass-icon-btn focus:outline-none">
                     <svg id="hamburger-icon" class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/>
                     </svg>
@@ -59,8 +52,8 @@
         </div>
 
         <!-- Mobile Liquid Glass Dropdown Menu -->
-        <div id="mobile-menu" class="hidden md:hidden mt-2.5 mobile-liquid-panel p-5 font-sans-luxury transform transition-all duration-300 opacity-0 -translate-y-3">
-            <nav class="flex flex-col space-y-1.5 pb-4 border-b border-[#171513]/10">
+        <div id="mobile-menu" class="hidden 2xl:hidden mt-2.5 mobile-liquid-panel p-5 font-sans-luxury transform transition-all duration-300 opacity-0 -translate-y-3">
+            <nav class="flex lg:hidden flex-col space-y-1.5 pb-4 border-b border-[#171513]/10">
                 <a href="{{ url('/women') }}" class="mobile-nav-link flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium {{ request()->is('women*') ? 'text-[#171513] bg-white/70 font-semibold shadow-xs' : 'text-[#59524c] hover:text-[#171513] hover:bg-white/40' }} transition">
                     <span>Women</span>
                 </a>
@@ -92,7 +85,7 @@
                     <span>Contact</span>
                 </a>
             </nav>
-            <div class="pt-4 flex items-center justify-between gap-3">
+            <div class="flex 2xl:hidden items-center justify-between gap-3 {{ request()->is('login*') || request()->is('register*') ? 'pt-4' : '' }}">
                 <a href="{{ url('/login') }}" class="mobile-nav-link flex-1 text-center text-sm font-medium text-[#171513] py-2.5 px-4 rounded-xl border border-white/60 bg-white/50 hover:bg-white/80 transition shadow-xs">
                     Member Login
                 </a>

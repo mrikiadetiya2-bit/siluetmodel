@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Eye, Heart, X, CheckCircle, Sparkles, ArrowRight, UserCheck } from 'lucide-react';
 
 const maleModels = [
@@ -90,6 +90,8 @@ const maleModels = [
 ];
 
 export default function MenRoster() {
+    const [models, setModels] = useState([]);
+    const [loadingModels, setLoadingModels] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedModel, setSelectedModel] = useState(null);
@@ -100,14 +102,20 @@ export default function MenRoster() {
 
     const categories = ['All', 'Runway & Catwalk', 'High Fashion Editorial', 'Commercial & Lifestyle', 'Fitness & Athleisure'];
 
+    useEffect(() => {
+        fetch('/api/public/records/gallery').then(res => res.ok ? res.json() : []).then(records => {
+            setModels(records.filter(r => r.data?.audience === 'Man').map(r => ({ id: r.id, ...r.data, image: r.data.image || r.data.images?.[0], gallery: r.data.images || [r.data.image], campaigns: r.data.campaigns || [] })));
+        }).catch(() => setModels([])).finally(() => setLoadingModels(false));
+    }, []);
+
     const filteredModels = useMemo(() => {
-        return maleModels.filter((model) => {
+        return models.filter((model) => {
             const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
             const matchesSearch = model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 model.category.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
-    }, [selectedCategory, searchQuery]);
+    }, [models, selectedCategory, searchQuery]);
 
     const toggleSaveModel = (e, modelId) => {
         e.stopPropagation();
@@ -319,7 +327,7 @@ export default function MenRoster() {
                                         {selectedModel.name}
                                     </h2>
                                     <p className="text-xs text-[#8e857e] mb-6">
-                                        {selectedModel.category} &bull; {selectedModel.experience} Pengalaman Profesional
+                                        {[selectedModel.category, selectedModel.age && `Umur ${selectedModel.age} tahun`].filter(Boolean).join(' • ')}
                                     </p>
 
                                     <div className="grid grid-cols-3 gap-2.5 mb-6 text-center text-xs">
@@ -342,7 +350,7 @@ export default function MenRoster() {
                                             Portofolio Runway & Kampanye
                                         </h4>
                                         <ul className="space-y-1.5 text-xs text-[#6e6761]">
-                                            {selectedModel.campaigns.map((camp, idx) => (
+                                            {(selectedModel.campaigns || []).map((camp, idx) => (
                                                 <li key={idx} className="flex items-center gap-2">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#bba994]"></span>
                                                     <span>{camp}</span>

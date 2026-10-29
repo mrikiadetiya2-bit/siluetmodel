@@ -6,6 +6,7 @@ use App\Models\PortalRecord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PortalRecordController extends Controller
 {
@@ -25,6 +26,28 @@ class PortalRecordController extends Controller
             'data' => ['sometimes', 'array'],
             'status' => ['sometimes', 'string', 'max:40'],
         ]);
+        if ($record->type === 'gallery') {
+            $request->validate([
+                'images' => ['sometimes', 'array', 'size:3'],
+                'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            ]);
+            $galleryData = array_merge($record->data ?? [], $request->input('data', []));
+            $request->validate([
+                'data.title' => ['sometimes', 'required', 'string', 'max:255'],
+                'data.audience' => ['sometimes', 'required', 'in:Man,Women,Kids'],
+            ]);
+            if ($request->hasFile('images')) {
+                $oldImages = $record->data['images'] ?? [];
+                $galleryData['images'] = array_map(fn ($file) => '/storage/'.$file->store('gallery', 'public'), $request->file('images'));
+                $galleryData['image'] = $galleryData['images'][0];
+                foreach ($oldImages as $oldImage) {
+                    if (is_string($oldImage) && str_starts_with($oldImage, '/storage/')) {
+                        Storage::disk('public')->delete(substr($oldImage, strlen('/storage/')));
+                    }
+                }
+            }
+            $data['data'] = $galleryData;
+        }
         $record->update($data);
 
         return response()->json($record->refresh());
@@ -33,6 +56,13 @@ class PortalRecordController extends Controller
     public function destroy(PortalRecord $record): JsonResponse
     {
         abort_unless(in_array($record->type, self::TYPES, true), 404);
+        if ($record->type === 'gallery') {
+            foreach ($record->data['images'] ?? [$record->data['image'] ?? null] as $image) {
+                if (is_string($image) && str_starts_with($image, '/storage/')) {
+                    Storage::disk('public')->delete(substr($image, strlen('/storage/')));
+                }
+            }
+        }
         $record->delete();
 
         return response()->json(['message' => 'Data berhasil dihapus.']);
@@ -72,12 +102,35 @@ class PortalRecordController extends Controller
             'data' => ['required', 'array'],
             'status' => ['sometimes', 'string', 'max:40'],
         ]);
+        if (is_string($data['data'] ?? null)) {
+            $data['data'] = json_decode($data['data'], true) ?: [];
+        }
+        if ($type === 'gallery' && is_string($data['data']['campaigns'] ?? null)) {
+            $data['data']['campaigns'] = json_decode($data['data']['campaigns'], true) ?: [];
+        }
         if ($type === 'contact') {
             $request->validate([
                 'data.name' => ['required', 'string', 'max:255'],
                 'data.email' => ['required', 'email', 'max:255'],
                 'data.phone' => ['nullable', 'string', 'max:40'],
             ]);
+        }
+
+        if ($type === 'gallery') {
+            $request->validate([
+                'images' => ['required', 'array', 'size:3'],
+                'images.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+                'data.title' => ['required', 'string', 'max:255'],
+                'data.category' => ['required', 'string', 'max:100'],
+                'data.audience' => ['required', 'in:Man,Women,Kids'],
+                'data.date' => ['nullable', 'string', 'max:100'],
+                'data.age' => ['nullable', 'integer', 'min:1', 'max:120'],
+                'data.height' => ['nullable', 'string', 'max:50'],
+                'data.campaigns' => ['nullable', 'array', 'max:20'],
+                'data.campaigns.*' => ['string', 'max:255'],
+            ]);
+            $data['data']['images'] = array_map(fn ($file) => '/storage/'.$file->store('gallery', 'public'), $request->file('images'));
+            $data['data']['image'] = $data['data']['images'][0];
         }
 
         $record = DB::transaction(function () use ($type, $data) {

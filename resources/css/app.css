@@ -150,6 +150,14 @@ html {
     align-items: center;
 }
 
+@media (min-width: 1536px) {
+    .nav-pill-item {
+        padding-inline: 0.58rem;
+        font-size: 0.8125rem;
+        white-space: nowrap;
+    }
+}
+
 .nav-pill-item:hover {
     color: #171513;
     background: rgba(255, 255, 255, 0.65);

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, SlidersHorizontal, Eye, Heart, X, CheckCircle, Sparkles, ArrowRight, Share2, Download } from 'lucide-react';
 
 const femaleModels = [
@@ -133,6 +133,8 @@ const femaleModels = [
 ];
 
 export default function WomenRoster() {
+    const [models, setModels] = useState([]);
+    const [loadingModels, setLoadingModels] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedModel, setSelectedModel] = useState(null);
@@ -143,14 +145,20 @@ export default function WomenRoster() {
 
     const categories = ['All', 'Runway & Catwalk', 'High Fashion Editorial', 'Commercial & Campaign', 'New Faces'];
 
+    useEffect(() => {
+        fetch('/api/public/records/gallery').then(res => res.ok ? res.json() : []).then(records => {
+            setModels(records.filter(r => r.data?.audience === 'Women').map(r => ({ id: r.id, ...r.data, image: r.data.image || r.data.images?.[0], gallery: r.data.images || [r.data.image], campaigns: r.data.campaigns || [] })));
+        }).catch(() => setModels([])).finally(() => setLoadingModels(false));
+    }, []);
+
     const filteredModels = useMemo(() => {
-        return femaleModels.filter((model) => {
+        return models.filter((model) => {
             const matchesCategory = selectedCategory === 'All' || model.category === selectedCategory;
             const matchesSearch = model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 model.category.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
-    }, [selectedCategory, searchQuery]);
+    }, [models, selectedCategory, searchQuery]);
 
     const toggleSaveModel = (e, modelId) => {
         e.stopPropagation();
@@ -392,29 +400,9 @@ export default function WomenRoster() {
                                     <h2 className="font-serif-luxury text-3xl font-normal text-[#171513] mb-1">
                                         {selectedModel.name}
                                     </h2>
-                                    <p className="text-xs text-[#8e857e] mb-6 flex items-center gap-2">
-                                        <span>Tinggi: {selectedModel.height}</span>
-                                        <span>&bull;</span>
-                                        <span>Mata: {selectedModel.eyes}</span>
-                                        <span>&bull;</span>
-                                        <span>Rambut: {selectedModel.hair}</span>
+                                    <p className="text-xs text-[#8e857e] mb-6">
+                                        {[selectedModel.age && `Umur: ${selectedModel.age} tahun`, selectedModel.height && `Tinggi: ${selectedModel.height}`].filter(Boolean).join(' • ')}
                                     </p>
-
-                                    {/* Detailed Specifications */}
-                                    <div className="grid grid-cols-3 gap-2.5 mb-6 text-center text-xs">
-                                        <div className="bg-[#faf8f5] p-2.5 rounded-xl border border-[#eee7dc]">
-                                            <div className="text-[#8e857e] text-[10.5px]">Bust</div>
-                                            <div className="font-semibold text-[#171513]">{selectedModel.bust}</div>
-                                        </div>
-                                        <div className="bg-[#faf8f5] p-2.5 rounded-xl border border-[#eee7dc]">
-                                            <div className="text-[#8e857e] text-[10.5px]">Waist</div>
-                                            <div className="font-semibold text-[#171513]">{selectedModel.waist}</div>
-                                        </div>
-                                        <div className="bg-[#faf8f5] p-2.5 rounded-xl border border-[#eee7dc]">
-                                            <div className="text-[#8e857e] text-[10.5px]">Hips</div>
-                                            <div className="font-semibold text-[#171513]">{selectedModel.hips}</div>
-                                        </div>
-                                    </div>
 
                                     {/* Past Notable Campaigns */}
                                     <div className="mb-6">
@@ -422,7 +410,7 @@ export default function WomenRoster() {
                                             Pengalaman & Kampanye Utama
                                         </h4>
                                         <ul className="space-y-1.5 text-xs text-[#6e6761]">
-                                            {selectedModel.campaigns.map((camp, idx) => (
+                                    {(selectedModel.campaigns || []).map((camp, idx) => (
                                                 <li key={idx} className="flex items-center gap-2">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-[#bba994]"></span>
                                                     <span>{camp}</span>

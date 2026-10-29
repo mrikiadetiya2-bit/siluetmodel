@@ -1,71 +1,8 @@
 import React, { useState } from 'react';
 import { Award, Star, Calendar, MessageSquare, X, CheckCircle, ArrowRight, Share2 } from 'lucide-react';
 
-const mentors = [
-    {
-        id: 'mentor-1',
-        name: 'Victoria Sandra',
-        role: 'Head of Runway Choreography',
-        experience: '16 Tahun Pengalaman',
-        specialty: 'Catwalk Rhythm, Haute Couture Posture, Stage Confidence',
-        image: '/images/hero_3.jpg',
-        bio: 'Mantan model internasional yang telah mengarahkan lebih dari 80 peragaan busana besar di Jakarta, Singapore, dan Milan. Terkenal dengan metode pelatihannya yang presisi, humanis, dan membangun karakter panggung yang tak terlupakan.',
-        achievements: [
-            'Lead Choreographer Jakarta Fashion Week (2018 - 2025)',
-            'Mentor of The Year Indonesia Fashion Chamber',
-            'Alumni Model Elite Model Look International'
-        ],
-        instagram: '@victoriasandra.official'
-    },
-    {
-        id: 'mentor-2',
-        name: 'Bintang Daniswara',
-        role: 'Editorial Posing & Creative Director',
-        experience: '12 Tahun Pengalaman',
-        specialty: 'High Fashion Angles, Micro-Expression, Studio Lighting Interaction',
-        image: '/images/blazer_suit.jpg',
-        bio: 'Fotografer & Creative Director kenamaan yang karyanya menghiasi sampul majalah Elle, Harper’s Bazaar, dan Marie Claire. Membimbing murid memahami psikologi kamera dan menemukan keunikan visual personal.',
-        achievements: [
-            'Official Photographer for Asia’s Next Top Model Guest Episode',
-            'Harper’s Bazaar Indonesia Fashion Spread Award',
-            'Kurator Pameran Mode Kontemporer'
-        ],
-        instagram: '@bintangdaniswara'
-    },
-    {
-        id: 'mentor-3',
-        name: 'Rachel Wijaya',
-        role: 'Commercial Acting & Talent Branding',
-        experience: '10 Tahun Pengalaman',
-        specialty: 'TV Commercial Screen Test, Monologue, Digital Personal Branding',
-        image: '/images/card_advanced.jpg',
-        bio: 'Bintang iklan lebih dari 100 produk nasional dan pelatih akting komersial. Membantu model mengasah vokal, kontak mata, dan daya tarik natural yang sangat dicari sutradara iklan dan brand ambassador.',
-        achievements: [
-            'Brand Ambassador 4 Brand Skincare Nasional',
-            'Casting Consultant untuk Major Production Houses',
-            'Speaker di Creative Youth Summit'
-        ],
-        instagram: '@rachelwijaya.act'
-    },
-    {
-        id: 'mentor-4',
-        name: 'Hendra Setiadi',
-        role: 'Talent Scout & Career Strategist',
-        experience: '14 Tahun Pengalaman',
-        specialty: 'Agency Contracts, Portfolio Packaging, Global Career Placement',
-        image: '/images/about-suit.jpg',
-        bio: 'Pemandu bakat senior yang memiliki jaringan luas dengan agensi model papan atas di Tokyo, Seoul, dan Paris. Mempersiapkan mental, integritas profesional, dan negosiasi kontrak murid Siluet Tala.',
-        achievements: [
-            'Menempatkan 20+ Model Indonesia di Agensi Luar Negeri',
-            'Founder Fashion Scout Network Indonesia',
-            'Konsultan Karir Model Profesional'
-        ],
-        instagram: '@hendrasetiadi.scout'
-    }
-];
-
 export default function MentorShowcase() {
-    const [mentorList, setMentorList] = useState(mentors);
+    const [mentorList, setMentorList] = useState([]);
     const [selectedMentor, setSelectedMentor] = useState(null);
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [consultName, setConsultName] = useState('');
@@ -75,7 +12,7 @@ export default function MentorShowcase() {
         fetch('/api/public/mentors')
             .then(res => res.ok ? res.json() : [])
             .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
+                if (Array.isArray(data)) {
                     const mapped = data.map(m => ({
                         id: `db-${m.id}`,
                         name: m.name,
@@ -87,7 +24,7 @@ export default function MentorShowcase() {
                         achievements: ['Instruktur Resmi Siluet Model Tala'],
                         instagram: '@siluetmodeltala',
                     }));
-                    setMentorList([...mapped, ...mentors]);
+                    setMentorList(mapped);
                 }
             })
             .catch(() => {});
@@ -159,6 +96,12 @@ export default function MentorShowcase() {
                     </div>
                 ))}
             </div>
+
+            {mentorList.length === 0 && (
+                <p className="mb-16 text-center text-sm text-[#6e6761]">
+                    Belum ada data mentor yang tersedia.
+                </p>
+            )}
 
             {/* Mentor Detail Modal */}
             {selectedMentor && (

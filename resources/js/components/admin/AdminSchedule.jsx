@@ -41,6 +41,8 @@ export default function AdminSchedule() {
     const [toast, setToast] = useState(null);
     const [busy, setBusy] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [programFilter, setProgramFilter] = useState('');
+    const [mentorFilter, setMentorFilter] = useState('');
 
     const showToast = (msg, type = 'success') => {
         setToast({ msg, type });
@@ -65,6 +67,11 @@ export default function AdminSchedule() {
     };
 
     useEffect(() => { load(); }, []);
+
+    const filteredSchedules = useMemo(() => schedules.filter(schedule =>
+        (!programFilter || String(schedule.program_id) === programFilter)
+        && (!mentorFilter || String(schedule.mentor_id) === mentorFilter)
+    ), [schedules, programFilter, mentorFilter]);
 
     const openAdd = () => {
         setForm(emptyForm);
@@ -250,13 +257,39 @@ export default function AdminSchedule() {
             )}
 
             {/* Schedule List */}
+            <div className="bg-white rounded-2xl border border-[#ede7dd] p-4 flex flex-col sm:flex-row gap-3">
+                <label className="flex-1">
+                    <span className="block text-xs font-semibold text-[#68625c] mb-1.5">Filter program</span>
+                    <select value={programFilter} onChange={e => setProgramFilter(e.target.value)}
+                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none">
+                        <option value="">Semua program</option>
+                        {programs.map(program => <option key={program.id} value={program.id}>{program.title}</option>)}
+                    </select>
+                </label>
+                <label className="flex-1">
+                    <span className="block text-xs font-semibold text-[#68625c] mb-1.5">Filter mentor</span>
+                    <select value={mentorFilter} onChange={e => setMentorFilter(e.target.value)}
+                        className="w-full bg-[#fbfaf8] border border-[#ded7cb] rounded-xl px-3.5 py-2.5 text-xs text-[#1c1a17] focus:outline-none">
+                        <option value="">Semua mentor</option>
+                        {mentors.map(mentor => <option key={mentor.id} value={mentor.id}>{mentor.name}</option>)}
+                    </select>
+                </label>
+                {(programFilter || mentorFilter) && (
+                    <button type="button" onClick={() => { setProgramFilter(''); setMentorFilter(''); }}
+                        className="self-end px-3 py-2.5 text-xs font-medium text-[#78716c] hover:text-[#1c1a17]">
+                        Hapus filter
+                    </button>
+                )}
+            </div>
             {loading ? (
                 <div className="p-10 text-center text-sm text-[#78716c]">Memuat data jadwal...</div>
             ) : schedules.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-[#ede7dd] p-10 text-center text-sm text-[#78716c]">Belum ada jadwal tersimpan.</div>
+            ) : filteredSchedules.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-[#ede7dd] p-10 text-center text-sm text-[#78716c]">Tidak ada jadwal yang cocok dengan filter.</div>
             ) : (
                 <div className="space-y-4">
-                    {schedules.map(schedule => (
+                    {filteredSchedules.map(schedule => (
                         <div key={schedule.id} className="bg-white rounded-2xl border border-[#ede7dd] overflow-hidden shadow-xs">
                             <div className="p-5 flex flex-wrap items-start justify-between gap-4">
                                 <div className="flex-1 min-w-0">

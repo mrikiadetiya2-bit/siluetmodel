@@ -1,71 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Eye, X, Play, Award, Film, Sparkles, ChevronLeft, ChevronRight, Calendar, User } from 'lucide-react';
 
-const highlightItems = [
-    {
-        id: 'h-1',
-        title: 'Jakarta Fashion Week 2025 Opening Gala',
-        category: 'Fashion Shows',
-        year: '2025',
-        designer: 'Sebastian Gunawan Couture',
-        models: 'Nadia Putri & 8 Siluet Tala Alumni',
-        image: '/images/card_runway.jpg',
-        description: 'Penampilan memukau alumni Siluet Model Tala membawakan koleksi haute couture pembuka di panggung runway terbesar Asia Tenggara.'
-    },
-    {
-        id: 'h-2',
-        title: 'Harper’s Bazaar Indonesia Editorial Cover',
-        category: 'Magazine Covers',
-        year: '2024',
-        designer: 'Biyan Wanaatmadja',
-        models: 'Aura Clarissa',
-        image: '/images/hero-model.jpg',
-        description: 'Edisi keanggunan nusantara kontemporer yang diabadikan oleh fotografer mode ternama, menampilkan riasan natural glowing khas editorial modern.'
-    },
-    {
-        id: 'h-3',
-        title: 'Plaza Indonesia Men’s Fashion Week',
-        category: 'Fashion Shows',
-        year: '2025',
-        designer: 'Wong Hang Tailor',
-        models: 'Adrian Pratama & Damon Setiawan',
-        image: '/images/blazer_suit.jpg',
-        description: 'Sorotan tailoring pria kontemporer dengan siluet tegap, presisi tinggi, dan dominasi karakter panggung maskulin berkelas.'
-    },
-    {
-        id: 'h-4',
-        title: 'Sephora Southeast Asia Beauty Campaign',
-        category: 'Commercial TVC',
-        year: '2024',
-        designer: 'Sephora Studio SG',
-        models: 'Valerie Laurent',
-        image: '/images/card_commercial.jpg',
-        description: 'Kampanye kosmetik regional yang tayang di lebih dari 6 negara Asia Tenggara, membuktikan daya saing global talenta Siluet Tala.'
-    },
-    {
-        id: 'h-5',
-        title: 'Best Modeling Academy Award 2024',
-        category: 'Awards & Alumni',
-        year: '2024',
-        designer: 'Indonesia Fashion Chamber (IFC)',
-        models: 'Siluet Model Tala Academy',
-        image: '/images/about-suit.jpg',
-        description: 'Penghargaan bergengsi atas kontribusi mencetak generasi model profesional beretika tinggi dan berprestasi di kancah fashion nasional.'
-    },
-    {
-        id: 'h-6',
-        title: 'Elle Indonesia Golden Hour Photospread',
-        category: 'Magazine Covers',
-        year: '2023',
-        designer: 'Sapto Djojokartiko',
-        models: 'Sophia Ardelia',
-        image: '/images/hero_1.jpg',
-        description: 'Eksplorasi visual mode di alam terbuka dengan permainan cahaya senja dramatis yang menonjolkan ekspresi emosional sang model.'
-    }
-];
-
-export default function HighlightsGallery() {
-    const [items, setItems] = useState(highlightItems);
+export default function HighlightsGallery({ audience = null }) {
+    const [items, setItems] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
@@ -73,24 +10,30 @@ export default function HighlightsGallery() {
         fetch('/api/public/records/gallery')
             .then(res => res.ok ? res.json() : [])
             .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                    const mapped = data.map(d => ({
-                        id: `db-${d.id}`,
-                        title: d.data?.title || 'Galeri Siluet Tala',
-                        category: d.data?.category || 'Fashion Shows',
-                        year: d.data?.date ? String(d.data.date).slice(0, 4) : '2025',
-                        designer: d.data?.designer || 'Siluet Model Tala',
-                        models: d.data?.models || 'Alumni & Talent',
-                        image: d.data?.image || '/images/card_runway.jpg',
-                        description: d.data?.description || d.data?.title || '',
-                    }));
-                    setItems([...mapped, ...highlightItems]);
+                if (Array.isArray(data)) {
+                    const mapped = data.filter(d => !audience || d.data?.audience === audience).map(d => {
+                        const dateStr = d.data?.date ? String(d.data.date) : '';
+                        const yearMatch = dateStr.match(/\b(20\d\d|19\d\d)\b/);
+                        const year = yearMatch ? yearMatch[1] : (dateStr ? dateStr.slice(0, 4) : '2025');
+
+                        return {
+                            id: `db-${d.id}`,
+                            title: d.data?.title || 'Galeri Siluet Tala',
+                            category: d.data?.category || 'Fashion Shows',
+                            year,
+                            designer: d.data?.designer || 'Siluet Model Tala',
+                            models: d.data?.models || 'Alumni & Talent',
+                            image: d.data?.image || d.data?.images?.[0] || '/images/card_runway.jpg',
+                            description: d.data?.description || d.data?.title || '',
+                        };
+                    });
+                    setItems(mapped);
                 }
             })
             .catch(() => {});
-    }, []);
+    }, [audience]);
 
-    const categories = ['All', 'Fashion Shows', 'Magazine Covers', 'Commercial TVC', 'Awards & Alumni'];
+    const categories = ['All', ...new Set(items.map(item => item.category).filter(Boolean))];
 
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
@@ -101,20 +44,23 @@ export default function HighlightsGallery() {
     const activeItem = activeLightboxIndex !== null ? filteredItems[activeLightboxIndex] : null;
 
     const nextLightbox = () => {
-        if (activeLightboxIndex < filteredItems.length - 1) {
-            setActiveLightboxIndex(activeLightboxIndex + 1);
-        } else {
-            setActiveLightboxIndex(0);
-        }
+        setActiveLightboxIndex(prev => (prev < filteredItems.length - 1 ? prev + 1 : 0));
     };
 
     const prevLightbox = () => {
-        if (activeLightboxIndex > 0) {
-            setActiveLightboxIndex(activeLightboxIndex - 1);
-        } else {
-            setActiveLightboxIndex(filteredItems.length - 1);
-        }
+        setActiveLightboxIndex(prev => (prev > 0 ? prev - 1 : filteredItems.length - 1));
     };
+
+    React.useEffect(() => {
+        if (activeLightboxIndex === null) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setActiveLightboxIndex(null);
+            if (e.key === 'ArrowRight') nextLightbox();
+            if (e.key === 'ArrowLeft') prevLightbox();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [activeLightboxIndex, filteredItems.length]);
 
     return (
         <div className="py-10">
@@ -223,13 +169,17 @@ export default function HighlightsGallery() {
                     </button>
 
                     <div 
-                        className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[85vh]"
+                        className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col md:flex-row md:h-[500px] lg:h-[520px] max-h-[90vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="md:w-3/5 bg-black flex items-center justify-center overflow-hidden">
-                            <img src={activeItem.image} alt={activeItem.title} className="w-full h-full object-contain max-h-[75vh]" />
+                        <div className="w-full md:w-3/5 h-64 sm:h-80 md:h-full bg-[#f4f0e8] relative overflow-hidden shrink-0">
+                            <img 
+                                src={activeItem.image} 
+                                alt={activeItem.title} 
+                                className="w-full h-full object-cover object-center" 
+                            />
                         </div>
-                        <div className="md:w-2/5 p-8 flex flex-col justify-between overflow-y-auto">
+                        <div className="w-full md:w-2/5 p-6 md:p-8 flex flex-col justify-between overflow-y-auto bg-white">
                             <div>
                                 <span className="text-[11px] font-semibold text-[#8e857e] tracking-widest uppercase block mb-1">
                                     {activeItem.category} &bull; {activeItem.year}
@@ -253,7 +203,7 @@ export default function HighlightsGallery() {
                                 </div>
                             </div>
 
-                            <div className="pt-6 border-t border-[#f0ebe3]">
+                            <div className="pt-6 border-t border-[#f0ebe3] mt-4 md:mt-0">
                                 <a 
                                     href="/contact"
                                     className="w-full bg-[#171513] text-white py-3 rounded-xl text-xs font-medium hover:bg-[#2b2723] transition flex items-center justify-center gap-2"
