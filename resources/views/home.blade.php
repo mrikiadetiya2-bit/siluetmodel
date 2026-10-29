@@ -534,6 +534,213 @@
     </section>
 
 
+    <!-- ================= VIRTUAL RUNWAY & LOOKBOOK (TRY THE LOOK - SEAMLESS STAGE) ================= -->
+    <section id="virtual-runway" class="py-16 lg:py-24 bg-[#f7f4ee] relative overflow-hidden select-none border-t border-[#ede7dd]">
+
+        <!-- Ambient floor glow (seamless runway lighting) -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-[1100px] h-[260px] rounded-full pointer-events-none blur-3xl opacity-60" style="background:radial-gradient(ellipse at center, rgba(230,220,205,0.7) 0%, transparent 70%);"></div>
+
+        <!-- Section Header -->
+        <div class="max-w-[1400px] mx-auto px-6 lg:px-14 relative z-10 mb-2 sm:mb-4">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2.5">
+                        <span class="w-8 h-[1.5px] bg-[#8e857e]/60"></span>
+                        <span class="text-[10.5px] uppercase tracking-[0.28em] text-[#8e857e] font-sans-luxury font-semibold">
+                            INTERACTIVE RUNWAY &amp; LOOKBOOK
+                        </span>
+                    </div>
+                    <h2 class="font-serif-luxury text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#171513] leading-tight">
+                        Try the Look &amp; Talents
+                    </h2>
+                </div>
+                <div class="max-w-[420px]">
+                    <p class="text-[#6e6761] text-[13px] sm:text-[13.5px] leading-relaxed font-sans-luxury">
+                        Geser barisan model di panggung <em>virtual runway</em> untuk mengeksplorasi karakter talenta dan koleksi busana Siluet Model Tala.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEAMLESS RUNWAY CANVAS (NO RECTANGLE BOX - DIRECT ON PAGE BACKGROUND) -->
+        <div class="relative w-full z-10 min-h-[500px] sm:min-h-[560px] lg:min-h-[600px] flex items-center overflow-hidden" id="runway-container">
+
+            <!-- Horizontal Gliding Viewport -->
+            <div class="runway-viewport w-full h-[470px] sm:h-[530px] lg:h-[570px] flex items-end overflow-hidden cursor-grab active:cursor-grabbing relative" id="runway-viewport">
+                
+                <!-- Floor Horizon Guide Line (seamless & subtle) -->
+                <div class="absolute bottom-6 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#dcd3c5]/50 to-transparent pointer-events-none"></div>
+
+                <!-- Slider Track (Translates smoothly via transform3d with inertia) -->
+                <div class="runway-slider flex items-end will-change-transform py-4" id="runway-slider" style="transition: transform 0.55s cubic-bezier(0.2, 0.95, 0.35, 1);">
+                    
+                    <!-- Model 1: Putera Kebudayaan Kalsel -->
+                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="0" style="width:260px; margin: 0 16px;">
+                        <div class="relative flex flex-col items-center">
+                            <img 
+                                src="{{ asset('images/lineup/model_putera.png') }}" 
+                                alt="M. Fajar Shadiq - Putera Kebudayaan Kalsel" 
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
+                            />
+                            <!-- Contact Floor Shadow -->
+                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <!-- Model 2: Marwa (Smart Casual Runway) -->
+                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="1" style="width:260px; margin: 0 16px;">
+                        <div class="relative flex flex-col items-center">
+                            <img 
+                                src="{{ asset('images/lineup/model_marwa_full.png') }}" 
+                                alt="Marwa Al-Zahra - Runway Model" 
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
+                            />
+                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <!-- Model 3: Wakil IV Galuh Banjar -->
+                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="2" style="width:260px; margin: 0 16px;">
+                        <div class="relative flex flex-col items-center">
+                            <img 
+                                src="{{ asset('images/lineup/model_galuh.png') }}" 
+                                alt="Siti Nur Azizah - Wakil IV Galuh" 
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
+                            />
+                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <!-- Model 4: Male Formal Suit -->
+                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="3" style="width:260px; margin: 0 16px;">
+                        <div class="relative flex flex-col items-center">
+                            <img 
+                                src="{{ asset('images/lineup/model_suit.png') }}" 
+                                alt="Rian Pratama - Male Editorial" 
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
+                            />
+                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <!-- Model 5: Kids Modeling School -->
+                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="4" style="width:260px; margin: 0 16px;">
+                        <div class="relative flex flex-col items-center">
+                            <img 
+                                src="{{ asset('images/lineup/model_kids.png') }}" 
+                                alt="Callysta Aurelia - Kids Modeling" 
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
+                            />
+                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FLOATING TRANSLUCENT COMPACT PROFILE CARD (RIGHT SIDE) -->
+            <div class="hidden md:block absolute right-6 lg:right-14 top-1/2 -translate-y-1/2 z-30 pointer-events-auto">
+                <div class="bg-white/65 hover:bg-white/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/85 shadow-lg shadow-black/[0.04] w-[270px] sm:w-[290px] lg:w-[310px] transition-all duration-300">
+                    
+                    <!-- Card Top Header -->
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-[9.5px] uppercase tracking-[0.25em] text-[#8e857e] font-sans-luxury font-bold">
+                            IN THIS LOOK
+                        </span>
+                        <span id="panel-category-badge" class="px-2 py-0.5 rounded-full bg-[#ede5d8]/80 text-[#6e6357] text-[9.5px] font-sans-luxury font-semibold uppercase tracking-wider">
+                            Pageant &amp; Runway
+                        </span>
+                    </div>
+
+                    <!-- Talent Name & Role -->
+                    <h3 id="panel-talent-name" class="font-serif-luxury text-xl sm:text-2xl font-normal text-[#171513] leading-snug mb-0.5 transition-opacity duration-200">
+                        M. Fajar Shadiq
+                    </h3>
+                    <p id="panel-talent-role" class="text-[11px] font-sans-luxury text-[#8e857e] font-medium mb-3 transition-opacity duration-200 line-clamp-1">
+                        Putera Kebudayaan Kalsel 2024
+                    </p>
+
+                    <!-- Look Details Box -->
+                    <div class="p-2.5 rounded-xl bg-white/60 border border-[#eee6da]/80 mb-3 space-y-1">
+                        <span class="text-[9px] uppercase tracking-wider text-[#9c9388] font-sans-luxury font-semibold block">
+                            Koleksi / Busana
+                        </span>
+                        <p id="panel-look-title" class="text-[11.5px] font-semibold text-[#171513] font-sans-luxury leading-tight transition-opacity duration-200">
+                            Sasirangan Heritage Blazer with Formal Inner
+                        </p>
+                        <p id="panel-look-desc" class="text-[10.5px] text-[#6e6761] leading-relaxed font-sans-luxury transition-opacity duration-200 line-clamp-2">
+                            Blazer batik sasirangan modern tosca laut dipadu kemeja hitam formal dan selendang resmi.
+                        </p>
+                    </div>
+
+                    <!-- Attribute Chips -->
+                    <div class="grid grid-cols-2 gap-2 mb-3.5 text-[10.5px] font-sans-luxury">
+                        <div class="px-2.5 py-1.5 rounded-lg bg-white/60 border border-[#eee6da]/80">
+                            <span class="text-[8.5px] uppercase text-[#9c9388] block">Desainer</span>
+                            <span id="panel-designer" class="font-semibold text-[#171513] truncate block">Siluet Etnik</span>
+                        </div>
+                        <div class="px-2.5 py-1.5 rounded-lg bg-white/60 border border-[#eee6da]/80">
+                            <span class="text-[8.5px] uppercase text-[#9c9388] block">Postur</span>
+                            <span id="panel-height" class="font-semibold text-[#171513] block">180 cm</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <a href="#kontak" id="panel-booking-btn" class="w-full inline-flex items-center justify-center gap-2 bg-[#171513] hover:bg-[#2c2824] text-white py-2.5 px-4 rounded-full text-[11.5px] font-medium font-sans-luxury transition-all duration-300 shadow-sm active:scale-98">
+                        <span>Konsultasi Booking</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- FLOATING MINIMALIST BOTTOM NAVIGATION -->
+            <div class="absolute bottom-3 left-6 sm:left-14 z-30 flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-white/75 backdrop-blur-md rounded-full px-3 py-1 border border-white/80 shadow-xs">
+                    <span class="text-[11px] font-sans-luxury font-semibold text-[#171513]">
+                        <span id="runway-current-num">01</span><span class="text-[#c5baa8] font-normal"> / 05</span>
+                    </span>
+                    <button type="button" id="runway-prev-btn" aria-label="Previous Look"
+                        class="w-6 h-6 rounded-full bg-white hover:bg-[#171513] hover:text-white flex items-center justify-center text-[#171513] transition-all border border-[#d8d2c9] active:scale-90 shadow-2xs cursor-pointer">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button type="button" id="runway-next-btn" aria-label="Next Look"
+                        class="w-6 h-6 rounded-full bg-[#171513] text-white hover:bg-black flex items-center justify-center transition-all active:scale-90 shadow-2xs cursor-pointer">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+                <span class="text-[10px] text-[#9e9488] font-sans-luxury hidden sm:inline tracking-wider uppercase">
+                    ← Geser model untuk melihat look →
+                </span>
+            </div>
+
+        </div>
+
+        <!-- Mobile Floating Profile Box (Below Runway on Small Screens) -->
+        <div class="block md:hidden px-6 mt-4 relative z-20">
+            <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-sm max-w-sm mx-auto">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span id="panel-category-badge-mobile" class="px-2 py-0.5 rounded-full bg-[#ede5d8]/80 text-[#6e6357] text-[9px] font-sans-luxury font-semibold uppercase">
+                        Pageant &amp; Runway
+                    </span>
+                    <span class="text-[10px] text-[#8e857e]" id="panel-height-mobile">180 cm</span>
+                </div>
+                <h3 id="panel-talent-name-mobile" class="font-serif-luxury text-lg text-[#171513] leading-snug mb-0.5">
+                    M. Fajar Shadiq
+                </h3>
+                <p id="panel-look-title-mobile" class="text-[11px] text-[#6e6761] mb-3 font-sans-luxury line-clamp-1">
+                    Sasirangan Heritage Blazer with Formal Inner
+                </p>
+                <a href="#kontak" class="w-full inline-flex items-center justify-center gap-1.5 bg-[#171513] text-white py-2 px-3 rounded-full text-[11px] font-medium font-sans-luxury">
+                    <span>Konsultasi Booking</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
+            </div>
+        </div>
+
+    </section>
+
+
     <!-- ================= PROGRAM UNGGULAN SECTION ================= -->
     <section id="program" class="py-20 lg:py-24 bg-[#ffffff]">
         <div class="max-w-[1360px] mx-auto px-6 lg:px-14">
@@ -1235,6 +1442,313 @@
                 currentTestiIndex = (currentTestiIndex + 1) % testimonials.length;
                 updateTestimonial(currentTestiIndex);
             });
+        }
+
+        // ===================================================
+        // VIRTUAL RUNWAY & LOOKBOOK CONTROLLER (KINETIC SLIDER)
+        // ===================================================
+        const runwayModels = [
+            {
+                id: 1,
+                name: "M. Fajar Shadiq",
+                role: "Putera Kebudayaan Kalsel 2024",
+                category: "Pageant & Runway",
+                lookTitle: "Sasirangan Heritage Blazer with Formal Inner",
+                lookDesc: "Blazer batik sasirangan modern tosca laut dipadu kemeja hitam formal dan selendang selempang resmi.",
+                designer: "Siluet Etnik",
+                height: "180 cm",
+                bookingText: "Konsultasi Booking Putera Kebudayaan"
+            },
+            {
+                id: 2,
+                name: "Marwa Al-Zahra",
+                role: "Senior Runway & High-Fashion Model",
+                category: "Urban High-Fashion",
+                lookTitle: "Classic Double-Breasted Tailored Blazer",
+                lookDesc: "Blazer hitam formal double-breasted dipadukan flare denim retro dan platform heels catwalk profesional.",
+                designer: "Urban Couture Siluet",
+                height: "174 cm",
+                bookingText: "Konsultasi Booking Model Runway"
+            },
+            {
+                id: 3,
+                name: "Siti Nur Azizah",
+                role: "Wakil IV Galuh Kalimantan Selatan",
+                category: "Traditional Pageant",
+                lookTitle: "Busana Adat Sasirangan Galuh Banjar",
+                lookDesc: "Kebaya adat Banjar bertabur manik emas dengan kerudung selendang fuchsia bordir keemasan dan rok marun beludru.",
+                designer: "Giri Wangi & Siluet",
+                height: "168 cm",
+                bookingText: "Konsultasi Booking Galuh Banjar"
+            },
+            {
+                id: 4,
+                name: "Rian Pratama",
+                role: "Male Editorial & Fashion Week Alumni",
+                category: "Menswear & Commercial",
+                lookTitle: "Midnight Black Tailored Two-Piece Suit",
+                lookDesc: "Setelan jas pria modern fitted dengan kemeja putih klasik berkancing terbuka dan sepatu pantofel kulit mengkilap.",
+                designer: "Siluet Menswear",
+                height: "182 cm",
+                bookingText: "Konsultasi Booking Male Model"
+            },
+            {
+                id: 5,
+                name: "Callysta Aurelia",
+                role: "Kids & Teen Modeling Prodigy",
+                category: "Kids Modeling School",
+                lookTitle: "Pastel Street Chic & Pleated Skirt",
+                lookDesc: "Jaket denim pastel pink dengan turtleneck rajut beige dan rok lipit ivory, dipadukan high-socks dan chunky heels youthful.",
+                designer: "Siluet Kids Wardrobe",
+                height: "152 cm",
+                bookingText: "Konsultasi Booking Kids Model"
+            }
+        ];
+
+        let activeRunwayIndex = 0;
+        let currentTranslateX = 0;
+        let isDraggingRunway = false;
+        let dragStartX = 0;
+        let dragStartTranslate = 0;
+        let hasMovedDrag = false;
+
+        const runwayViewport = document.getElementById('runway-viewport');
+        const runwaySlider = document.getElementById('runway-slider');
+        const runwayItems = document.querySelectorAll('.runway-item');
+        const runwayCurrentNum = document.getElementById('runway-current-num');
+        const runwayPrevBtn = document.getElementById('runway-prev-btn');
+        const runwayNextBtn = document.getElementById('runway-next-btn');
+
+        // Desktop Panel Elements
+        const panelCategoryBadge = document.getElementById('panel-category-badge');
+        const panelTalentName = document.getElementById('panel-talent-name');
+        const panelTalentRole = document.getElementById('panel-talent-role');
+        const panelLookTitle = document.getElementById('panel-look-title');
+        const panelLookDesc = document.getElementById('panel-look-desc');
+        const panelDesigner = document.getElementById('panel-designer');
+        const panelHeight = document.getElementById('panel-height');
+        const panelBookingBtn = document.getElementById('panel-booking-btn');
+
+        // Mobile Panel Elements
+        const panelCategoryBadgeMobile = document.getElementById('panel-category-badge-mobile');
+        const panelTalentNameMobile = document.getElementById('panel-talent-name-mobile');
+        const panelLookTitleMobile = document.getElementById('panel-look-title-mobile');
+        const panelHeightMobile = document.getElementById('panel-height-mobile');
+
+        // Calculate visual depth effects for all models dynamically based on position
+        function updateModelDepthEffects(translateX) {
+            if (!runwayViewport || runwayItems.length === 0) return;
+            const viewportWidth = runwayViewport.offsetWidth;
+            const centerX = viewportWidth / 2;
+
+            runwayItems.forEach((item, idx) => {
+                const itemLeft = item.offsetLeft;
+                const itemWidth = item.offsetWidth;
+                const modelCenterOnScreen = translateX + itemLeft + (itemWidth / 2);
+                const distFromCenter = Math.abs(modelCenterOnScreen - centerX);
+                const normFactor = Math.min(distFromCenter / 360, 1);
+
+                // Smooth interpolation
+                const scale = 1.07 - (normFactor * 0.22);
+                const blur = normFactor * 5.5;
+                const opacity = 1 - (normFactor * 0.65);
+                const shadow = item.querySelector('.floor-shadow');
+
+                item.style.transform = `scale(${scale.toFixed(3)})`;
+                item.style.filter = `blur(${blur.toFixed(1)}px)`;
+                item.style.opacity = opacity.toFixed(2);
+                item.style.zIndex = distFromCenter < (itemWidth / 2) ? '30' : (20 - Math.min(Math.floor(distFromCenter / 80), 15));
+
+                if (shadow) {
+                    const shadowScale = 1.1 - (normFactor * 0.35);
+                    const shadowOpacity = 1 - (normFactor * 0.7);
+                    shadow.style.transform = `scale(${shadowScale.toFixed(2)})`;
+                    shadow.style.opacity = shadowOpacity.toFixed(2);
+                }
+            });
+        }
+
+        // Animate slider to target index with smooth physics
+        function snapToRunwayIndex(index, animated = true) {
+            activeRunwayIndex = Math.max(0, Math.min(index, runwayModels.length - 1));
+
+            if (!runwayViewport || !runwaySlider || runwayItems.length === 0) return;
+
+            const viewportWidth = runwayViewport.offsetWidth;
+            const centerX = viewportWidth / 2;
+            const targetItem = runwayItems[activeRunwayIndex];
+            const targetOffsetLeft = targetItem.offsetLeft;
+            const targetWidth = targetItem.offsetWidth;
+
+            currentTranslateX = centerX - (targetOffsetLeft + targetWidth / 2);
+
+            if (animated) {
+                runwaySlider.style.transition = 'transform 0.52s cubic-bezier(0.18, 0.9, 0.32, 1)';
+            } else {
+                runwaySlider.style.transition = 'none';
+            }
+
+            runwaySlider.style.transform = `translate3d(${currentTranslateX}px, 0, 0)`;
+            updateModelDepthEffects(currentTranslateX);
+
+            // Update Counter
+            if (runwayCurrentNum) {
+                runwayCurrentNum.textContent = (activeRunwayIndex + 1) < 10 ? '0' + (activeRunwayIndex + 1) : String(activeRunwayIndex + 1);
+            }
+
+            // Update Profile Panel Info with subtle fade
+            const data = runwayModels[activeRunwayIndex];
+            const desktopFadeEls = [panelTalentName, panelTalentRole, panelLookTitle, panelLookDesc, panelDesigner, panelHeight, panelCategoryBadge];
+            
+            desktopFadeEls.forEach(el => {
+                if (el) el.style.opacity = '0';
+            });
+
+            setTimeout(() => {
+                if (panelTalentName) panelTalentName.textContent = data.name;
+                if (panelTalentRole) panelTalentRole.textContent = data.role;
+                if (panelCategoryBadge) panelCategoryBadge.textContent = data.category;
+                if (panelLookTitle) panelLookTitle.textContent = data.lookTitle;
+                if (panelLookDesc) panelLookDesc.textContent = data.lookDesc;
+                if (panelDesigner) panelDesigner.textContent = data.designer;
+                if (panelHeight) panelHeight.textContent = data.height;
+
+                // Mobile
+                if (panelTalentNameMobile) panelTalentNameMobile.textContent = data.name;
+                if (panelCategoryBadgeMobile) panelCategoryBadgeMobile.textContent = data.category;
+                if (panelLookTitleMobile) panelLookTitleMobile.textContent = data.lookTitle;
+                if (panelHeightMobile) panelHeightMobile.textContent = data.height;
+
+                desktopFadeEls.forEach(el => {
+                    if (el) el.style.opacity = '1';
+                });
+            }, 140);
+        }
+
+        // Attach Click on individual model items
+        runwayItems.forEach((item) => {
+            item.addEventListener('click', (e) => {
+                if (hasMovedDrag) return;
+                const idx = parseInt(item.getAttribute('data-index'), 10);
+                snapToRunwayIndex(idx, true);
+            });
+        });
+
+        // Navigation arrow buttons
+        if (runwayPrevBtn) {
+            runwayPrevBtn.addEventListener('click', () => {
+                const prev = activeRunwayIndex > 0 ? activeRunwayIndex - 1 : runwayModels.length - 1;
+                snapToRunwayIndex(prev, true);
+            });
+        }
+
+        if (runwayNextBtn) {
+            runwayNextBtn.addEventListener('click', () => {
+                const next = activeRunwayIndex < runwayModels.length - 1 ? activeRunwayIndex + 1 : 0;
+                snapToRunwayIndex(next, true);
+            });
+        }
+
+        // Continuous Kinetic Mouse & Touch Dragging
+        if (runwayViewport) {
+            // MOUSE EVENTS
+            runwayViewport.addEventListener('mousedown', (e) => {
+                isDraggingRunway = true;
+                hasMovedDrag = false;
+                dragStartX = e.clientX;
+                dragStartTranslate = currentTranslateX;
+                runwaySlider.style.transition = 'none';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingRunway) return;
+                const deltaX = e.clientX - dragStartX;
+                if (Math.abs(deltaX) > 4) {
+                    hasMovedDrag = true;
+                }
+                currentTranslateX = dragStartTranslate + deltaX;
+                runwaySlider.style.transform = `translate3d(${currentTranslateX}px, 0, 0)`;
+                updateModelDepthEffects(currentTranslateX);
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isDraggingRunway) return;
+                isDraggingRunway = false;
+
+                // Find closest model to center
+                const viewportWidth = runwayViewport.offsetWidth;
+                const centerX = viewportWidth / 2;
+                let closestIdx = activeRunwayIndex;
+                let minDistance = Infinity;
+
+                runwayItems.forEach((item, idx) => {
+                    const itemLeft = item.offsetLeft;
+                    const itemWidth = item.offsetWidth;
+                    const modelCenter = currentTranslateX + itemLeft + (itemWidth / 2);
+                    const dist = Math.abs(modelCenter - centerX);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestIdx = idx;
+                    }
+                });
+
+                snapToRunwayIndex(closestIdx, true);
+            });
+
+            // TOUCH EVENTS (Mobile / Tablet)
+            runwayViewport.addEventListener('touchstart', (e) => {
+                if (e.touches.length !== 1) return;
+                isDraggingRunway = true;
+                hasMovedDrag = false;
+                dragStartX = e.touches[0].clientX;
+                dragStartTranslate = currentTranslateX;
+                runwaySlider.style.transition = 'none';
+            }, { passive: true });
+
+            runwayViewport.addEventListener('touchmove', (e) => {
+                if (!isDraggingRunway || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - dragStartX;
+                if (Math.abs(deltaX) > 4) {
+                    hasMovedDrag = true;
+                }
+                currentTranslateX = dragStartTranslate + deltaX;
+                runwaySlider.style.transform = `translate3d(${currentTranslateX}px, 0, 0)`;
+                updateModelDepthEffects(currentTranslateX);
+            }, { passive: true });
+
+            runwayViewport.addEventListener('touchend', () => {
+                if (!isDraggingRunway) return;
+                isDraggingRunway = false;
+
+                const viewportWidth = runwayViewport.offsetWidth;
+                const centerX = viewportWidth / 2;
+                let closestIdx = activeRunwayIndex;
+                let minDistance = Infinity;
+
+                runwayItems.forEach((item, idx) => {
+                    const itemLeft = item.offsetLeft;
+                    const itemWidth = item.offsetWidth;
+                    const modelCenter = currentTranslateX + itemLeft + (itemWidth / 2);
+                    const dist = Math.abs(modelCenter - centerX);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestIdx = idx;
+                    }
+                });
+
+                snapToRunwayIndex(closestIdx, true);
+            });
+        }
+
+        // Window resize adjustment
+        window.addEventListener('resize', () => {
+            snapToRunwayIndex(activeRunwayIndex, false);
+        });
+
+        // Initialize Runway after load
+        setTimeout(() => {
+            snapToRunwayIndex(0, false);
+        }, 150);
     </script>
 @endpush
 
