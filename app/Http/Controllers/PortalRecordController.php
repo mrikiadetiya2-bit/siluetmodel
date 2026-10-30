@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PortalRecordController extends Controller
 {
-    private const TYPES = ['testimonial', 'gallery', 'settings', 'contact', 'certificate', 'booking'];
+    private const TYPES = ['testimonial', 'gallery', 'settings', 'contact', 'certificate', 'booking', 'runway'];
 
     public function index(string $type): JsonResponse
     {
@@ -26,6 +26,7 @@ class PortalRecordController extends Controller
             'data' => ['sometimes', 'array'],
             'status' => ['sometimes', 'string', 'max:40'],
         ]);
+
         if ($record->type === 'gallery') {
             $request->validate([
                 'images' => ['sometimes', 'array', 'size:3'],
@@ -48,6 +49,30 @@ class PortalRecordController extends Controller
             }
             $data['data'] = $galleryData;
         }
+
+        if ($record->type === 'runway') {
+            $request->validate([
+                'image' => ['nullable', 'image', 'mimes:png,webp,jpg,jpeg', 'max:5120'],
+                'data.name' => ['sometimes', 'required', 'string', 'max:255'],
+                'data.role' => ['sometimes', 'required', 'string', 'max:255'],
+                'data.category' => ['sometimes', 'required', 'string', 'max:100'],
+                'data.lookTitle' => ['sometimes', 'required', 'string', 'max:255'],
+                'data.lookDesc' => ['nullable', 'string'],
+                'data.designer' => ['nullable', 'string', 'max:255'],
+                'data.height' => ['nullable', 'string', 'max:50'],
+                'data.bookingText' => ['nullable', 'string', 'max:255'],
+            ]);
+            $runwayData = array_merge($record->data ?? [], $request->input('data', []));
+            if ($request->hasFile('image')) {
+                $oldImage = $record->data['image'] ?? null;
+                if (is_string($oldImage) && str_starts_with($oldImage, '/storage/')) {
+                    Storage::disk('public')->delete(substr($oldImage, strlen('/storage/')));
+                }
+                $runwayData['image'] = '/storage/'.$request->file('image')->store('runway', 'public');
+            }
+            $data['data'] = $runwayData;
+        }
+
         $record->update($data);
 
         return response()->json($record->refresh());
@@ -63,6 +88,12 @@ class PortalRecordController extends Controller
                 }
             }
         }
+        if ($record->type === 'runway') {
+            $image = $record->data['image'] ?? null;
+            if (is_string($image) && str_starts_with($image, '/storage/')) {
+                Storage::disk('public')->delete(substr($image, strlen('/storage/')));
+            }
+        }
         $record->delete();
 
         return response()->json(['message' => 'Data berhasil dihapus.']);
@@ -70,7 +101,7 @@ class PortalRecordController extends Controller
 
     public function publicIndex(string $type): JsonResponse
     {
-        abort_unless(in_array($type, ['testimonial', 'gallery', 'mentor', 'schedule'], true), 404);
+        abort_unless(in_array($type, ['testimonial', 'gallery', 'mentor', 'schedule', 'runway'], true), 404);
 
         $query = PortalRecord::query()->where('type', $type)->where('status', 'Aktif');
 
@@ -133,6 +164,23 @@ class PortalRecordController extends Controller
             $data['data']['image'] = $data['data']['images'][0];
         }
 
+        if ($type === 'runway') {
+            $request->validate([
+                'image' => ['nullable', 'image', 'mimes:png,webp,jpg,jpeg', 'max:5120'],
+                'data.name' => ['required', 'string', 'max:255'],
+                'data.role' => ['required', 'string', 'max:255'],
+                'data.category' => ['required', 'string', 'max:100'],
+                'data.lookTitle' => ['required', 'string', 'max:255'],
+                'data.lookDesc' => ['nullable', 'string'],
+                'data.designer' => ['nullable', 'string', 'max:255'],
+                'data.height' => ['nullable', 'string', 'max:50'],
+                'data.bookingText' => ['nullable', 'string', 'max:255'],
+            ]);
+            if ($request->hasFile('image')) {
+                $data['data']['image'] = '/storage/'.$request->file('image')->store('runway', 'public');
+            }
+        }
+
         $record = DB::transaction(function () use ($type, $data) {
             $record = PortalRecord::create([
                 'type' => $type,
@@ -152,5 +200,4 @@ class PortalRecordController extends Controller
 
         return $this->store($request, $type);
     }
-
 }

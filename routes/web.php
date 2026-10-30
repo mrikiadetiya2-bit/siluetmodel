@@ -28,11 +28,13 @@ Route::get('/', function () {
     try {
         $programs = App\Models\Program::where('status', 'Aktif')->take(4)->get();
         $testimonials = App\Models\PortalRecord::where('type', 'testimonial')->where('status', 'Aktif')->latest()->take(6)->get();
+        $runwayModels = App\Models\PortalRecord::where('type', 'runway')->where('status', 'Aktif')->latest()->get();
     } catch (\Throwable) {
         $programs = collect();
         $testimonials = collect();
+        $runwayModels = collect();
     }
-    return view('home', compact('programs', 'testimonials'));
+    return view('home', compact('programs', 'testimonials', 'runwayModels'));
 });
 
 Route::get('/women', function () {
@@ -164,6 +166,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,superadmin'])->group(fun
 
     Route::get('/galeri', function () {
         return view('admin.gallery');
+    });
+
+    Route::get('/runway', function () {
+        return view('admin.runway');
     });
 
     Route::get('/laporan', function () {

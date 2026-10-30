@@ -22,6 +22,7 @@ import AdminPayments from './components/admin/AdminPayments.jsx';
 import AdminCertificates from './components/admin/AdminCertificates.jsx';
 import AdminTestimonials from './components/admin/AdminTestimonials.jsx';
 import AdminGallery from './components/admin/AdminGallery.jsx';
+import AdminRunway from './components/admin/AdminRunway.jsx';
 import AdminReports from './components/admin/AdminReports.jsx';
 import AdminSettings from './components/admin/AdminSettings.jsx';
 import ParticipantDashboard from './components/ParticipantDashboard.jsx';
@@ -46,6 +47,7 @@ const components = {
     AdminCertificates,
     AdminTestimonials,
     AdminGallery,
+    AdminRunway,
     AdminReports,
     AdminSettings,
     ParticipantDashboard,

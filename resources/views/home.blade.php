@@ -535,6 +535,95 @@
 
 
     <!-- ================= VIRTUAL RUNWAY & LOOKBOOK (TRY THE LOOK - SEAMLESS STAGE) ================= -->
+    @php
+        $defaultRunwayModels = [
+            [
+                'id' => 1,
+                'name' => 'M. Fajar Shadiq',
+                'role' => 'Putera Kebudayaan Kalsel 2024',
+                'category' => 'Pageant & Runway',
+                'lookTitle' => 'Sasirangan Heritage Blazer with Formal Inner',
+                'lookDesc' => 'Blazer batik sasirangan modern tosca laut dipadu kemeja hitam formal dan selendang resmi Putera Kebudayaan Kalsel 2024.',
+                'designer' => 'Siluet Etnik',
+                'height' => '180 cm',
+                'bookingText' => 'Konsultasi Booking Putera Kebudayaan',
+                'image' => asset('images/lineup/model_putera.png'),
+            ],
+            [
+                'id' => 2,
+                'name' => 'Marwa Al-Zahra',
+                'role' => 'Professional Runway & Commercial Model',
+                'category' => 'Smart Casual & Runway',
+                'lookTitle' => 'Modern Tailored Cape Blazer with Belt Accent',
+                'lookDesc' => 'Busana elegan serba putih aksen jubah modern dipadu hijab navy kontras dan ikat pinggang ramping emas.',
+                'designer' => 'Siluet Signature',
+                'height' => '174 cm',
+                'bookingText' => 'Konsultasi Booking Model Runway',
+                'image' => asset('images/lineup/model_marwa_full.png'),
+            ],
+            [
+                'id' => 3,
+                'name' => 'Siti Nur Azizah',
+                'role' => 'Wakil IV Galuh Kalimantan Selatan',
+                'category' => 'Traditional Pageant',
+                'lookTitle' => 'Busana Adat Sasirangan Galuh Banjar',
+                'lookDesc' => 'Kebaya adat Banjar bertabur manik emas dengan kerudung selendang fuchsia bordir keemasan dan rok marun beludru.',
+                'designer' => 'Giri Wangi & Siluet',
+                'height' => '168 cm',
+                'bookingText' => 'Konsultasi Booking Galuh Banjar',
+                'image' => asset('images/lineup/model_galuh.png'),
+            ],
+            [
+                'id' => 4,
+                'name' => 'Rian Pratama',
+                'role' => 'Male Editorial & Fashion Week Alumni',
+                'category' => 'Menswear & Commercial',
+                'lookTitle' => 'Midnight Black Tailored Two-Piece Suit',
+                'lookDesc' => 'Setelan jas pria modern fitted dengan kemeja putih klasik berkancing terbuka dan sepatu pantofel kulit mengkilap.',
+                'designer' => 'Siluet Menswear',
+                'height' => '182 cm',
+                'bookingText' => 'Konsultasi Booking Male Model',
+                'image' => asset('images/lineup/model_suit.png'),
+            ],
+            [
+                'id' => 5,
+                'name' => 'Callysta Aurelia',
+                'role' => 'Kids & Teen Modeling Prodigy',
+                'category' => 'Kids Modeling School',
+                'lookTitle' => 'Pastel Street Chic & Pleated Skirt',
+                'lookDesc' => 'Jaket denim pastel pink dengan turtleneck rajut beige dan rok lipit ivory, dipadukan high-socks dan chunky heels youthful.',
+                'designer' => 'Siluet Kids Wardrobe',
+                'height' => '152 cm',
+                'bookingText' => 'Konsultasi Booking Kids Model',
+                'image' => asset('images/lineup/model_kids.png'),
+            ],
+        ];
+
+        $activeRunwayList = [];
+        if (isset($runwayModels) && $runwayModels->isNotEmpty()) {
+            foreach ($runwayModels as $idx => $record) {
+                $d = $record->data ?? [];
+                $img = $d['image'] ?? null;
+                if ($img && !str_starts_with($img, 'http') && !str_starts_with($img, '/')) {
+                    $img = '/' . $img;
+                }
+                $activeRunwayList[] = [
+                    'id' => $record->id,
+                    'name' => $d['name'] ?? 'Model Siluet',
+                    'role' => $d['role'] ?? 'Model Siluet Tala',
+                    'category' => $d['category'] ?? 'Runway',
+                    'lookTitle' => $d['lookTitle'] ?? 'Koleksi Busana Siluet',
+                    'lookDesc' => $d['lookDesc'] ?? '',
+                    'designer' => $d['designer'] ?? 'Siluet Signature',
+                    'height' => $d['height'] ?? '-',
+                    'bookingText' => $d['bookingText'] ?? 'Konsultasi Booking Model',
+                    'image' => $img ? asset($img) : asset('images/lineup/model_putera.png'),
+                ];
+            }
+        }
+
+        $finalRunwayModels = !empty($activeRunwayList) ? $activeRunwayList : $defaultRunwayModels;
+    @endphp
     <section id="virtual-runway" class="py-16 lg:py-24 bg-[#f7f4ee] relative overflow-hidden select-none border-t border-[#ede7dd]">
 
         <!-- Ambient floor glow (seamless runway lighting) -->
@@ -573,68 +662,19 @@
 
                 <!-- Slider Track (Translates smoothly via transform3d with inertia) -->
                 <div class="runway-slider flex items-end will-change-transform py-4" id="runway-slider" style="transition: transform 0.55s cubic-bezier(0.2, 0.95, 0.35, 1);">
-                    
-                    <!-- Model 1: Putera Kebudayaan Kalsel -->
-                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="0" style="width:260px; margin: 0 16px;">
+                    @foreach ($finalRunwayModels as $idx => $m)
+                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="{{ $idx }}" style="width:260px; margin: 0 16px;">
                         <div class="relative flex flex-col items-center">
                             <img 
-                                src="{{ asset('images/lineup/model_putera.png') }}" 
-                                alt="M. Fajar Shadiq - Putera Kebudayaan Kalsel" 
+                                src="{{ $m['image'] }}" 
+                                alt="{{ $m['name'] }} - {{ $m['role'] }}" 
                                 class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
                             />
                             <!-- Contact Floor Shadow -->
                             <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
                         </div>
                     </div>
-
-                    <!-- Model 2: Marwa (Smart Casual Runway) -->
-                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="1" style="width:260px; margin: 0 16px;">
-                        <div class="relative flex flex-col items-center">
-                            <img 
-                                src="{{ asset('images/lineup/model_marwa_full.png') }}" 
-                                alt="Marwa Al-Zahra - Runway Model" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
-                            />
-                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
-                        </div>
-                    </div>
-
-                    <!-- Model 3: Wakil IV Galuh Banjar -->
-                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="2" style="width:260px; margin: 0 16px;">
-                        <div class="relative flex flex-col items-center">
-                            <img 
-                                src="{{ asset('images/lineup/model_galuh.png') }}" 
-                                alt="Siti Nur Azizah - Wakil IV Galuh" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
-                            />
-                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
-                        </div>
-                    </div>
-
-                    <!-- Model 4: Male Formal Suit -->
-                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="3" style="width:260px; margin: 0 16px;">
-                        <div class="relative flex flex-col items-center">
-                            <img 
-                                src="{{ asset('images/lineup/model_suit.png') }}" 
-                                alt="Rian Pratama - Male Editorial" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
-                            />
-                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
-                        </div>
-                    </div>
-
-                    <!-- Model 5: Kids Modeling School -->
-                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="4" style="width:260px; margin: 0 16px;">
-                        <div class="relative flex flex-col items-center">
-                            <img 
-                                src="{{ asset('images/lineup/model_kids.png') }}" 
-                                alt="Callysta Aurelia - Kids Modeling" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
-                            />
-                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
-                        </div>
-                    </div>
-
+                    @endforeach
                 </div>
             </div>
 
@@ -648,16 +688,16 @@
                             IN THIS LOOK
                         </span>
                         <span id="panel-category-badge" class="px-2 py-0.5 rounded-full bg-[#ede5d8]/80 text-[#6e6357] text-[9.5px] font-sans-luxury font-semibold uppercase tracking-wider">
-                            Pageant &amp; Runway
+                            {{ $finalRunwayModels[0]['category'] }}
                         </span>
                     </div>
 
                     <!-- Talent Name & Role -->
                     <h3 id="panel-talent-name" class="font-serif-luxury text-xl sm:text-2xl font-normal text-[#171513] leading-snug mb-0.5 transition-opacity duration-200">
-                        M. Fajar Shadiq
+                        {{ $finalRunwayModels[0]['name'] }}
                     </h3>
                     <p id="panel-talent-role" class="text-[11px] font-sans-luxury text-[#8e857e] font-medium mb-3 transition-opacity duration-200 line-clamp-1">
-                        Putera Kebudayaan Kalsel 2024
+                        {{ $finalRunwayModels[0]['role'] }}
                     </p>
 
                     <!-- Look Details Box -->
@@ -666,10 +706,10 @@
                             Koleksi / Busana
                         </span>
                         <p id="panel-look-title" class="text-[11.5px] font-semibold text-[#171513] font-sans-luxury leading-tight transition-opacity duration-200">
-                            Sasirangan Heritage Blazer with Formal Inner
+                            {{ $finalRunwayModels[0]['lookTitle'] }}
                         </p>
                         <p id="panel-look-desc" class="text-[10.5px] text-[#6e6761] leading-relaxed font-sans-luxury transition-opacity duration-200 line-clamp-2">
-                            Blazer batik sasirangan modern tosca laut dipadu kemeja hitam formal dan selendang resmi.
+                            {{ $finalRunwayModels[0]['lookDesc'] }}
                         </p>
                     </div>
 
@@ -677,17 +717,17 @@
                     <div class="grid grid-cols-2 gap-2 mb-3.5 text-[10.5px] font-sans-luxury">
                         <div class="px-2.5 py-1.5 rounded-lg bg-white/60 border border-[#eee6da]/80">
                             <span class="text-[8.5px] uppercase text-[#9c9388] block">Desainer</span>
-                            <span id="panel-designer" class="font-semibold text-[#171513] truncate block">Siluet Etnik</span>
+                            <span id="panel-designer" class="font-semibold text-[#171513] truncate block">{{ $finalRunwayModels[0]['designer'] }}</span>
                         </div>
                         <div class="px-2.5 py-1.5 rounded-lg bg-white/60 border border-[#eee6da]/80">
                             <span class="text-[8.5px] uppercase text-[#9c9388] block">Postur</span>
-                            <span id="panel-height" class="font-semibold text-[#171513] block">180 cm</span>
+                            <span id="panel-height" class="font-semibold text-[#171513] block">{{ $finalRunwayModels[0]['height'] }}</span>
                         </div>
                     </div>
 
                     <!-- Action Button -->
                     <a href="#kontak" id="panel-booking-btn" class="w-full inline-flex items-center justify-center gap-2 bg-[#171513] hover:bg-[#2c2824] text-white py-2.5 px-4 rounded-full text-[11.5px] font-medium font-sans-luxury transition-all duration-300 shadow-sm active:scale-98">
-                        <span>Konsultasi Booking</span>
+                        <span id="panel-booking-text">{{ $finalRunwayModels[0]['bookingText'] ?? 'Konsultasi Booking' }}</span>
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
 
@@ -698,7 +738,7 @@
             <div class="absolute bottom-3 left-6 sm:left-14 z-30 flex items-center gap-3">
                 <div class="flex items-center gap-2 bg-white/75 backdrop-blur-md rounded-full px-3 py-1 border border-white/80 shadow-xs">
                     <span class="text-[11px] font-sans-luxury font-semibold text-[#171513]">
-                        <span id="runway-current-num">01</span><span class="text-[#c5baa8] font-normal"> / 05</span>
+                        <span id="runway-current-num">01</span><span class="text-[#c5baa8] font-normal"> / {{ sprintf('%02d', count($finalRunwayModels)) }}</span>
                     </span>
                     <button type="button" id="runway-prev-btn" aria-label="Previous Look"
                         class="w-6 h-6 rounded-full bg-white hover:bg-[#171513] hover:text-white flex items-center justify-center text-[#171513] transition-all border border-[#d8d2c9] active:scale-90 shadow-2xs cursor-pointer">
@@ -721,18 +761,18 @@
             <div class="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/85 shadow-sm max-w-sm mx-auto">
                 <div class="flex items-center justify-between mb-1.5">
                     <span id="panel-category-badge-mobile" class="px-2 py-0.5 rounded-full bg-[#ede5d8]/80 text-[#6e6357] text-[9px] font-sans-luxury font-semibold uppercase">
-                        Pageant &amp; Runway
+                        {{ $finalRunwayModels[0]['category'] }}
                     </span>
-                    <span class="text-[10px] text-[#8e857e]" id="panel-height-mobile">180 cm</span>
+                    <span class="text-[10px] text-[#8e857e]" id="panel-height-mobile">{{ $finalRunwayModels[0]['height'] }}</span>
                 </div>
                 <h3 id="panel-talent-name-mobile" class="font-serif-luxury text-lg text-[#171513] leading-snug mb-0.5">
-                    M. Fajar Shadiq
+                    {{ $finalRunwayModels[0]['name'] }}
                 </h3>
                 <p id="panel-look-title-mobile" class="text-[11px] text-[#6e6761] mb-3 font-sans-luxury line-clamp-1">
-                    Sasirangan Heritage Blazer with Formal Inner
+                    {{ $finalRunwayModels[0]['lookTitle'] }}
                 </p>
                 <a href="#kontak" class="w-full inline-flex items-center justify-center gap-1.5 bg-[#171513] text-white py-2 px-3 rounded-full text-[11px] font-medium font-sans-luxury">
-                    <span>Konsultasi Booking</span>
+                    <span id="panel-booking-text-mobile">{{ $finalRunwayModels[0]['bookingText'] ?? 'Konsultasi Booking' }}</span>
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </a>
             </div>
@@ -1447,63 +1487,7 @@
         // ===================================================
         // VIRTUAL RUNWAY & LOOKBOOK CONTROLLER (KINETIC SLIDER)
         // ===================================================
-        const runwayModels = [
-            {
-                id: 1,
-                name: "M. Fajar Shadiq",
-                role: "Putera Kebudayaan Kalsel 2024",
-                category: "Pageant & Runway",
-                lookTitle: "Sasirangan Heritage Blazer with Formal Inner",
-                lookDesc: "Blazer batik sasirangan modern tosca laut dipadu kemeja hitam formal dan selendang selempang resmi.",
-                designer: "Siluet Etnik",
-                height: "180 cm",
-                bookingText: "Konsultasi Booking Putera Kebudayaan"
-            },
-            {
-                id: 2,
-                name: "Marwa Al-Zahra",
-                role: "Senior Runway & High-Fashion Model",
-                category: "Urban High-Fashion",
-                lookTitle: "Classic Double-Breasted Tailored Blazer",
-                lookDesc: "Blazer hitam formal double-breasted dipadukan flare denim retro dan platform heels catwalk profesional.",
-                designer: "Urban Couture Siluet",
-                height: "174 cm",
-                bookingText: "Konsultasi Booking Model Runway"
-            },
-            {
-                id: 3,
-                name: "Siti Nur Azizah",
-                role: "Wakil IV Galuh Kalimantan Selatan",
-                category: "Traditional Pageant",
-                lookTitle: "Busana Adat Sasirangan Galuh Banjar",
-                lookDesc: "Kebaya adat Banjar bertabur manik emas dengan kerudung selendang fuchsia bordir keemasan dan rok marun beludru.",
-                designer: "Giri Wangi & Siluet",
-                height: "168 cm",
-                bookingText: "Konsultasi Booking Galuh Banjar"
-            },
-            {
-                id: 4,
-                name: "Rian Pratama",
-                role: "Male Editorial & Fashion Week Alumni",
-                category: "Menswear & Commercial",
-                lookTitle: "Midnight Black Tailored Two-Piece Suit",
-                lookDesc: "Setelan jas pria modern fitted dengan kemeja putih klasik berkancing terbuka dan sepatu pantofel kulit mengkilap.",
-                designer: "Siluet Menswear",
-                height: "182 cm",
-                bookingText: "Konsultasi Booking Male Model"
-            },
-            {
-                id: 5,
-                name: "Callysta Aurelia",
-                role: "Kids & Teen Modeling Prodigy",
-                category: "Kids Modeling School",
-                lookTitle: "Pastel Street Chic & Pleated Skirt",
-                lookDesc: "Jaket denim pastel pink dengan turtleneck rajut beige dan rok lipit ivory, dipadukan high-socks dan chunky heels youthful.",
-                designer: "Siluet Kids Wardrobe",
-                height: "152 cm",
-                bookingText: "Konsultasi Booking Kids Model"
-            }
-        ];
+        const runwayModels = @json($finalRunwayModels);
 
         let activeRunwayIndex = 0;
         let currentTranslateX = 0;
@@ -1528,12 +1512,14 @@
         const panelDesigner = document.getElementById('panel-designer');
         const panelHeight = document.getElementById('panel-height');
         const panelBookingBtn = document.getElementById('panel-booking-btn');
+        const panelBookingText = document.getElementById('panel-booking-text');
 
         // Mobile Panel Elements
         const panelCategoryBadgeMobile = document.getElementById('panel-category-badge-mobile');
         const panelTalentNameMobile = document.getElementById('panel-talent-name-mobile');
         const panelLookTitleMobile = document.getElementById('panel-look-title-mobile');
         const panelHeightMobile = document.getElementById('panel-height-mobile');
+        const panelBookingTextMobile = document.getElementById('panel-booking-text-mobile');
 
         // Calculate visual depth effects for all models dynamically based on position
         function updateModelDepthEffects(translateX) {
@@ -1612,12 +1598,14 @@
                 if (panelLookDesc) panelLookDesc.textContent = data.lookDesc;
                 if (panelDesigner) panelDesigner.textContent = data.designer;
                 if (panelHeight) panelHeight.textContent = data.height;
+                if (panelBookingText) panelBookingText.textContent = data.bookingText || 'Konsultasi Booking';
 
                 // Mobile
                 if (panelTalentNameMobile) panelTalentNameMobile.textContent = data.name;
                 if (panelCategoryBadgeMobile) panelCategoryBadgeMobile.textContent = data.category;
                 if (panelLookTitleMobile) panelLookTitleMobile.textContent = data.lookTitle;
                 if (panelHeightMobile) panelHeightMobile.textContent = data.height;
+                if (panelBookingTextMobile) panelBookingTextMobile.textContent = data.bookingText || 'Konsultasi Booking';
 
                 desktopFadeEls.forEach(el => {
                     if (el) el.style.opacity = '1';

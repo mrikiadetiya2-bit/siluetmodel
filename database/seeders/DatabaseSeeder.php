@@ -307,6 +307,8 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        $this->call(RunwaySeeder::class);
+
         $this->command?->info('Seeding completed successfully!');
     }
 }

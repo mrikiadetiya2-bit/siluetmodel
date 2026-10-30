@@ -18,7 +18,8 @@ import {
     X,
     Menu,
     ExternalLink,
-    CheckCircle2
+    CheckCircle2,
+    Sparkles
 } from 'lucide-react';
 
 export default function AdminLayout({ activeNav = 'Dashboard', breadcrumb = 'Overview', children, onSearch }) {
@@ -41,6 +42,7 @@ export default function AdminLayout({ activeNav = 'Dashboard', breadcrumb = 'Ove
         { id: 'Sertifikat', label: 'Sertifikat', href: '/admin/sertifikat', icon: Award },
         { id: 'Testimoni', label: 'Testimoni', href: '/admin/testimoni', icon: MessageSquare },
         { id: 'Galeri', label: 'Galeri', href: '/admin/galeri', icon: ImageIcon },
+        { id: 'Virtual Runway', label: 'Virtual Runway', href: '/admin/runway', icon: Sparkles },
         { id: 'Laporan', label: 'Laporan', href: '/admin/laporan', icon: FileText },
         { id: 'Pengaturan', label: 'Pengaturan', href: '/admin/pengaturan', icon: Settings },
     ];
