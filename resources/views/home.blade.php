@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Siluet Model Tala - Shape Your Presence')
 
@@ -633,12 +633,6 @@
         <div class="max-w-[1400px] mx-auto px-6 lg:px-14 relative z-10 mb-2 sm:mb-4">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <div class="flex items-center gap-3 mb-2.5">
-                        <span class="w-8 h-[1.5px] bg-[#8e857e]/60"></span>
-                        <span class="text-[10.5px] uppercase tracking-[0.28em] text-[#8e857e] font-sans-luxury font-semibold">
-                            INTERACTIVE RUNWAY &amp; LOOKBOOK
-                        </span>
-                    </div>
                     <h2 class="font-serif-luxury text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#171513] leading-tight">
                         Try the Look &amp; Talents
                     </h2>
@@ -655,23 +649,27 @@
         <div class="relative w-full z-10 min-h-[500px] sm:min-h-[560px] lg:min-h-[600px] flex items-center overflow-hidden" id="runway-container">
 
             <!-- Horizontal Gliding Viewport -->
-            <div class="runway-viewport w-full h-[470px] sm:h-[530px] lg:h-[570px] flex items-end overflow-hidden cursor-grab active:cursor-grabbing relative" id="runway-viewport">
+            <div class="runway-viewport w-full h-[470px] sm:h-[530px] lg:h-[570px] relative overflow-hidden cursor-grab active:cursor-grabbing select-none" id="runway-viewport" style="touch-action: pan-y;">
                 
                 <!-- Floor Horizon Guide Line (seamless & subtle) -->
-                <div class="absolute bottom-6 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#dcd3c5]/50 to-transparent pointer-events-none"></div>
+                <div class="absolute bottom-6 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#dcd3c5]/50 to-transparent pointer-events-none z-0"></div>
 
-                <!-- Slider Track (Translates smoothly via transform3d with inertia) -->
-                <div class="runway-slider flex items-end will-change-transform py-4" id="runway-slider" style="transition: transform 0.55s cubic-bezier(0.2, 0.95, 0.35, 1);">
+                <!-- Stage for All Models (Continuous 2.5D Real-Time Stage) -->
+                <div class="runway-stage absolute inset-0 w-full h-full pointer-events-none" id="runway-stage">
                     @foreach ($finalRunwayModels as $idx => $m)
-                    <div class="runway-item group relative flex-shrink-0 flex flex-col items-center justify-end cursor-pointer select-none transition-all duration-300" data-index="{{ $idx }}" style="width:260px; margin: 0 16px;">
-                        <div class="relative flex flex-col items-center">
+                    <div class="runway-item will-change-transform cursor-pointer pointer-events-auto select-none" 
+                         data-index="{{ $idx }}" 
+                         style="position: absolute; left: 50%; bottom: 24px; transform-origin: bottom center; user-select: none;">
+                        <div class="relative flex flex-col items-center justify-end">
                             <img 
                                 src="{{ $m['image'] }}" 
                                 alt="{{ $m['name'] }} - {{ $m['role'] }}" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none transition-all duration-300 drop-shadow-md"
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none drop-shadow-md"
+                                draggable="false"
                             />
-                            <!-- Contact Floor Shadow -->
-                            <div class="floor-shadow w-36 sm:w-44 h-4 rounded-full bg-black/25 blur-md mt-[-8px] transition-all duration-300 pointer-events-none"></div>
+                            <!-- Grounding Floor Shadow -->
+                            <div class="floor-shadow w-44 sm:w-56 h-5 rounded-full pointer-events-none -mt-2.5" 
+                                 style="background: radial-gradient(ellipse at center, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 70%);"></div>
                         </div>
                     </div>
                     @endforeach
@@ -679,7 +677,7 @@
             </div>
 
             <!-- FLOATING TRANSLUCENT COMPACT PROFILE CARD (RIGHT SIDE) -->
-            <div class="hidden md:block absolute right-6 lg:right-14 top-1/2 -translate-y-1/2 z-30 pointer-events-auto">
+            <div class="hidden md:block absolute right-6 lg:right-14 top-1/2 -translate-y-1/2 z-[120] pointer-events-auto">
                 <div class="bg-white/65 hover:bg-white/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 border border-white/85 shadow-lg shadow-black/[0.04] w-[270px] sm:w-[290px] lg:w-[310px] transition-all duration-300">
                     
                     <!-- Card Top Header -->
@@ -735,7 +733,7 @@
             </div>
 
             <!-- FLOATING MINIMALIST BOTTOM NAVIGATION -->
-            <div class="absolute bottom-3 left-6 sm:left-14 z-30 flex items-center gap-3">
+            <div class="absolute bottom-3 left-6 sm:left-14 z-[120] flex items-center gap-3">
                 <div class="flex items-center gap-2 bg-white/75 backdrop-blur-md rounded-full px-3 py-1 border border-white/80 shadow-xs">
                     <span class="text-[11px] font-sans-luxury font-semibold text-[#171513]">
                         <span id="runway-current-num">01</span><span class="text-[#c5baa8] font-normal"> / {{ sprintf('%02d', count($finalRunwayModels)) }}</span>
@@ -749,9 +747,6 @@
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 </div>
-                <span class="text-[10px] text-[#9e9488] font-sans-luxury hidden sm:inline tracking-wider uppercase">
-                    ← Geser model untuk melihat look →
-                </span>
             </div>
 
         </div>
@@ -1484,20 +1479,11 @@
             });
         }
 
-        // ===================================================
-        // VIRTUAL RUNWAY & LOOKBOOK CONTROLLER (KINETIC SLIDER)
-        // ===================================================
+        // =========================================================================
+        // CONTINUOUS PHYSICS-BASED 2.5D RUNWAY CAROUSEL (REAL-TIME SCRUBBING & LERP)
+        // =========================================================================
         const runwayModels = @json($finalRunwayModels);
-
-        let activeRunwayIndex = 0;
-        let currentTranslateX = 0;
-        let isDraggingRunway = false;
-        let dragStartX = 0;
-        let dragStartTranslate = 0;
-        let hasMovedDrag = false;
-
         const runwayViewport = document.getElementById('runway-viewport');
-        const runwaySlider = document.getElementById('runway-slider');
         const runwayItems = document.querySelectorAll('.runway-item');
         const runwayCurrentNum = document.getElementById('runway-current-num');
         const runwayPrevBtn = document.getElementById('runway-prev-btn');
@@ -1521,222 +1507,168 @@
         const panelHeightMobile = document.getElementById('panel-height-mobile');
         const panelBookingTextMobile = document.getElementById('panel-booking-text-mobile');
 
-        // Calculate visual depth effects for all models dynamically based on position
-        function updateModelDepthEffects(translateX) {
-            if (!runwayViewport || runwayItems.length === 0) return;
-            const viewportWidth = runwayViewport.offsetWidth;
-            const centerX = viewportWidth / 2;
+        // Physics & Real-Time Drag State
+        let targetProgress = 0;
+        let currentProgress = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startProgress = 0;
+        let hasDragged = false;
+        let activeIndex = 0;
 
-            runwayItems.forEach((item, idx) => {
-                const itemLeft = item.offsetLeft;
-                const itemWidth = item.offsetWidth;
-                const modelCenterOnScreen = translateX + itemLeft + (itemWidth / 2);
-                const distFromCenter = Math.abs(modelCenterOnScreen - centerX);
-                const normFactor = Math.min(distFromCenter / 360, 1);
-
-                // Smooth interpolation
-                const scale = 1.07 - (normFactor * 0.22);
-                const blur = normFactor * 5.5;
-                const opacity = 1 - (normFactor * 0.65);
-                const shadow = item.querySelector('.floor-shadow');
-
-                item.style.transform = `scale(${scale.toFixed(3)})`;
-                item.style.filter = `blur(${blur.toFixed(1)}px)`;
-                item.style.opacity = opacity.toFixed(2);
-                item.style.zIndex = distFromCenter < (itemWidth / 2) ? '30' : (20 - Math.min(Math.floor(distFromCenter / 80), 15));
-
-                if (shadow) {
-                    const shadowScale = 1.1 - (normFactor * 0.35);
-                    const shadowOpacity = 1 - (normFactor * 0.7);
-                    shadow.style.transform = `scale(${shadowScale.toFixed(2)})`;
-                    shadow.style.opacity = shadowOpacity.toFixed(2);
-                }
-            });
+        function getSpacing() {
+            return window.innerWidth < 640 ? 160 : 210;
         }
+        let SPACING = getSpacing();
 
-        // Animate slider to target index with smooth physics
-        function snapToRunwayIndex(index, animated = true) {
-            activeRunwayIndex = Math.max(0, Math.min(index, runwayModels.length - 1));
+        window.addEventListener('resize', () => {
+            SPACING = getSpacing();
+        });
 
-            if (!runwayViewport || !runwaySlider || runwayItems.length === 0) return;
+        // 1. Update Profile Card & Navigation Number
+        function setActiveIndex(newIndex) {
+            if (newIndex < 0 || newIndex >= runwayModels.length) return;
+            activeIndex = newIndex;
 
-            const viewportWidth = runwayViewport.offsetWidth;
-            const centerX = viewportWidth / 2;
-            const targetItem = runwayItems[activeRunwayIndex];
-            const targetOffsetLeft = targetItem.offsetLeft;
-            const targetWidth = targetItem.offsetWidth;
-
-            currentTranslateX = centerX - (targetOffsetLeft + targetWidth / 2);
-
-            if (animated) {
-                runwaySlider.style.transition = 'transform 0.52s cubic-bezier(0.18, 0.9, 0.32, 1)';
-            } else {
-                runwaySlider.style.transition = 'none';
-            }
-
-            runwaySlider.style.transform = `translate3d(${currentTranslateX}px, 0, 0)`;
-            updateModelDepthEffects(currentTranslateX);
-
-            // Update Counter
+            // Update Counter (e.g. "01" / "05")
             if (runwayCurrentNum) {
-                runwayCurrentNum.textContent = (activeRunwayIndex + 1) < 10 ? '0' + (activeRunwayIndex + 1) : String(activeRunwayIndex + 1);
+                runwayCurrentNum.textContent = (activeIndex + 1) < 10 ? '0' + (activeIndex + 1) : String(activeIndex + 1);
             }
 
-            // Update Profile Panel Info with subtle fade
-            const data = runwayModels[activeRunwayIndex];
-            const desktopFadeEls = [panelTalentName, panelTalentRole, panelLookTitle, panelLookDesc, panelDesigner, panelHeight, panelCategoryBadge];
-            
-            desktopFadeEls.forEach(el => {
-                if (el) el.style.opacity = '0';
-            });
+            const data = runwayModels[activeIndex];
+            if (!data) return;
 
-            setTimeout(() => {
-                if (panelTalentName) panelTalentName.textContent = data.name;
-                if (panelTalentRole) panelTalentRole.textContent = data.role;
-                if (panelCategoryBadge) panelCategoryBadge.textContent = data.category;
-                if (panelLookTitle) panelLookTitle.textContent = data.lookTitle;
-                if (panelLookDesc) panelLookDesc.textContent = data.lookDesc;
-                if (panelDesigner) panelDesigner.textContent = data.designer;
-                if (panelHeight) panelHeight.textContent = data.height;
-                if (panelBookingText) panelBookingText.textContent = data.bookingText || 'Konsultasi Booking';
+            // Desktop elements
+            if (panelTalentName) panelTalentName.textContent = data.name;
+            if (panelTalentRole) panelTalentRole.textContent = data.role;
+            if (panelCategoryBadge) panelCategoryBadge.textContent = data.category;
+            if (panelLookTitle) panelLookTitle.textContent = data.lookTitle;
+            if (panelLookDesc) panelLookDesc.textContent = data.lookDesc || '';
+            if (panelDesigner) panelDesigner.textContent = data.designer || '-';
+            if (panelHeight) panelHeight.textContent = data.height || '-';
+            if (panelBookingText) panelBookingText.textContent = data.bookingText || 'Konsultasi Booking Model';
 
-                // Mobile
-                if (panelTalentNameMobile) panelTalentNameMobile.textContent = data.name;
-                if (panelCategoryBadgeMobile) panelCategoryBadgeMobile.textContent = data.category;
-                if (panelLookTitleMobile) panelLookTitleMobile.textContent = data.lookTitle;
-                if (panelHeightMobile) panelHeightMobile.textContent = data.height;
-                if (panelBookingTextMobile) panelBookingTextMobile.textContent = data.bookingText || 'Konsultasi Booking';
-
-                desktopFadeEls.forEach(el => {
-                    if (el) el.style.opacity = '1';
-                });
-            }, 140);
+            // Mobile elements
+            if (panelTalentNameMobile) panelTalentNameMobile.textContent = data.name;
+            if (panelCategoryBadgeMobile) panelCategoryBadgeMobile.textContent = data.category;
+            if (panelLookTitleMobile) panelLookTitleMobile.textContent = data.lookTitle;
+            if (panelHeightMobile) panelHeightMobile.textContent = data.height || '-';
+            if (panelBookingTextMobile) panelBookingTextMobile.textContent = data.bookingText || 'Konsultasi Booking';
         }
 
-        // Attach Click on individual model items
-        runwayItems.forEach((item) => {
+        // 2. Pointer Down (Mouse click or touch start)
+        function onPointerDown(e) {
+            isDragging = true;
+            hasDragged = false;
+            startX = e.clientX;
+            startProgress = targetProgress;
+            if (runwayViewport) {
+                runwayViewport.style.cursor = 'grabbing';
+            }
+        }
+
+        // 3. Pointer Move (Real-Time Scrubbing pixel by pixel)
+        function onPointerMove(e) {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            if (Math.abs(deltaX) > 4) {
+                hasDragged = true;
+            }
+            // Geser ke kiri = maju ke model berikutnya, geser ke kanan = mundur
+            targetProgress = startProgress - (deltaX / SPACING);
+            // Batasi agar tidak lepas jauh melewati model pertama dan terakhir
+            targetProgress = Math.max(-0.35, Math.min(runwayModels.length - 1 + 0.35, targetProgress));
+        }
+
+        // 4. Pointer Up (Smooth auto-snap to nearest model)
+        function onPointerUp() {
+            if (!isDragging) return;
+            isDragging = false;
+            if (runwayViewport) {
+                runwayViewport.style.cursor = 'grab';
+            }
+            const snappedIndex = Math.max(0, Math.min(runwayModels.length - 1, Math.round(targetProgress)));
+            targetProgress = snappedIndex;
+            setActiveIndex(snappedIndex);
+        }
+
+        // Attach listeners for unified drag (Mouse & Touch via Pointer events)
+        if (runwayViewport) {
+            runwayViewport.addEventListener('pointerdown', onPointerDown);
+        }
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        window.addEventListener('pointercancel', onPointerUp);
+
+        // Click on individual model items to snap directly
+        runwayItems.forEach((item, index) => {
             item.addEventListener('click', (e) => {
-                if (hasMovedDrag) return;
-                const idx = parseInt(item.getAttribute('data-index'), 10);
-                snapToRunwayIndex(idx, true);
+                if (hasDragged) return;
+                targetProgress = index;
+                setActiveIndex(index);
             });
         });
 
-        // Navigation arrow buttons
+        // Navigation arrow buttons (Bottom Left)
         if (runwayPrevBtn) {
-            runwayPrevBtn.addEventListener('click', () => {
-                const prev = activeRunwayIndex > 0 ? activeRunwayIndex - 1 : runwayModels.length - 1;
-                snapToRunwayIndex(prev, true);
+            runwayPrevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const current = Math.round(targetProgress);
+                const prev = current > 0 ? current - 1 : runwayModels.length - 1;
+                targetProgress = prev;
+                setActiveIndex(prev);
             });
         }
 
         if (runwayNextBtn) {
-            runwayNextBtn.addEventListener('click', () => {
-                const next = activeRunwayIndex < runwayModels.length - 1 ? activeRunwayIndex + 1 : 0;
-                snapToRunwayIndex(next, true);
+            runwayNextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const current = Math.round(targetProgress);
+                const next = current < runwayModels.length - 1 ? current + 1 : 0;
+                targetProgress = next;
+                setActiveIndex(next);
             });
         }
 
-        // Continuous Kinetic Mouse & Touch Dragging
-        if (runwayViewport) {
-            // MOUSE EVENTS
-            runwayViewport.addEventListener('mousedown', (e) => {
-                isDraggingRunway = true;
-                hasMovedDrag = false;
-                dragStartX = e.clientX;
-                dragStartTranslate = currentTranslateX;
-                runwaySlider.style.transition = 'none';
+        // 5. 60 FPS Continuous Render Loop via requestAnimationFrame
+        function renderLoop() {
+            // Rumus Lerp untuk efek inersia/ayunan halus
+            currentProgress += (targetProgress - currentProgress) * 0.085;
+
+            // Update kartu informasi secara reaktif saat model melewati titik tengah ketika sedang di-drag
+            const liveCenterIndex = Math.max(0, Math.min(runwayModels.length - 1, Math.round(currentProgress)));
+            if (liveCenterIndex !== activeIndex) {
+                setActiveIndex(liveCenterIndex);
+            }
+
+            // Terapkan transformasi 2.5D langsung ke masing-masing elemen DOM model
+            runwayItems.forEach((el, index) => {
+                if (!el) return;
+                const offset = index - currentProgress; // Jarak ke titik tengah (float)
+                const absOffset = Math.abs(offset);
+
+                // Perhitungan posisi, skala bertingkat, perspektif lengkung Y, dan blur real-time
+                const translateX = offset * SPACING;
+                const translateY = -Math.min(45, absOffset * 16); // Kaki model pinggir sedikit lebih naik
+                const scale = Math.max(0.55, 1 - absOffset * 0.16);
+                const blur = Math.min(8, Math.max(0, (absOffset - 0.1) * 3.2));
+                const opacity = Math.max(0, 1 - Math.max(0, absOffset - 2.2) * 0.8);
+                const zIndex = Math.round(100 - absOffset * 10);
+
+                el.style.transform = `translate3d(calc(-50% + ${translateX.toFixed(2)}px), ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(3)})`;
+                el.style.filter = `blur(${blur.toFixed(2)}px)`;
+                el.style.opacity = opacity.toFixed(2);
+                el.style.zIndex = zIndex;
             });
 
-            window.addEventListener('mousemove', (e) => {
-                if (!isDraggingRunway) return;
-                const deltaX = e.clientX - dragStartX;
-                if (Math.abs(deltaX) > 4) {
-                    hasMovedDrag = true;
-                }
-                currentTranslateX = dragStartTranslate + deltaX;
-                runwaySlider.style.transform = `translate3d(${currentTranslateX}px, 0, 0)`;
-                updateModelDepthEffects(currentTranslateX);
-            });
-
-            window.addEventListener('mouseup', (e) => {
-                if (!isDraggingRunway) return;
-                isDraggingRunway = false;
-
-                // Find closest model to center
-                const viewportWidth = runwayViewport.offsetWidth;
-                const centerX = viewportWidth / 2;
-                let closestIdx = activeRunwayIndex;
-                let minDistance = Infinity;
-
-                runwayItems.forEach((item, idx) => {
-                    const itemLeft = item.offsetLeft;
-                    const itemWidth = item.offsetWidth;
-                    const modelCenter = currentTranslateX + itemLeft + (itemWidth / 2);
-                    const dist = Math.abs(modelCenter - centerX);
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        closestIdx = idx;
-                    }
-                });
-
-                snapToRunwayIndex(closestIdx, true);
-            });
-
-            // TOUCH EVENTS (Mobile / Tablet)
-            runwayViewport.addEventListener('touchstart', (e) => {
-                if (e.touches.length !== 1) return;
-                isDraggingRunway = true;
-                hasMovedDrag = false;
-                dragStartX = e.touches[0].clientX;
-                dragStartTranslate = currentTranslateX;
-                runwaySlider.style.transition = 'none';
-            }, { passive: true });
-
-            runwayViewport.addEventListener('touchmove', (e) => {
-                if (!isDraggingRunway || e.touches.length !== 1) return;
-                const deltaX = e.touches[0].clientX - dragStartX;
-                if (Math.abs(deltaX) > 4) {
-                    hasMovedDrag = true;
-                }
-                currentTranslateX = dragStartTranslate + deltaX;
-                runwaySlider.style.transform = `translate3d(${currentTranslateX}px, 0, 0)`;
-                updateModelDepthEffects(currentTranslateX);
-            }, { passive: true });
-
-            runwayViewport.addEventListener('touchend', () => {
-                if (!isDraggingRunway) return;
-                isDraggingRunway = false;
-
-                const viewportWidth = runwayViewport.offsetWidth;
-                const centerX = viewportWidth / 2;
-                let closestIdx = activeRunwayIndex;
-                let minDistance = Infinity;
-
-                runwayItems.forEach((item, idx) => {
-                    const itemLeft = item.offsetLeft;
-                    const itemWidth = item.offsetWidth;
-                    const modelCenter = currentTranslateX + itemLeft + (itemWidth / 2);
-                    const dist = Math.abs(modelCenter - centerX);
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        closestIdx = idx;
-                    }
-                });
-
-                snapToRunwayIndex(closestIdx, true);
-            });
+            requestAnimationFrame(renderLoop);
         }
 
-        // Window resize adjustment
-        window.addEventListener('resize', () => {
-            snapToRunwayIndex(activeRunwayIndex, false);
-        });
-
-        // Initialize Runway after load
-        setTimeout(() => {
-            snapToRunwayIndex(0, false);
-        }, 150);
+        // Start render loop & initialize first model
+        setActiveIndex(0);
+        requestAnimationFrame(renderLoop);
     </script>
 @endpush
 
