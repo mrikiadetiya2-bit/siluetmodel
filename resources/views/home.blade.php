@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Siluet Model Tala - Shape Your Presence')
 
@@ -665,18 +665,18 @@
                          style="position: absolute; left: 50%; bottom: 24px; transform-origin: bottom center; user-select: none;">
                         <div class="relative flex flex-col items-center justify-end">
                             
-                            <!-- Realistic 3-Tier Studio Floor Shadow (Grounding & Contact Occlusion - Zero Gap) -->
+                            <!-- Realistic Studio Floor Shadow — Natural, soft, warm-toned -->
                             <div class="model-shadow-box absolute pointer-events-none select-none" 
-                                 style="bottom: -8px; left: 50%; transform: translateX(-50%); width: 280px; height: 36px; z-index: 1;">
-                                <!-- Tier 1: Soft Ambient Floor Glow / Studio Dispersion (Penumbra) -->
-                                <div class="absolute inset-0 rounded-[100%]" 
-                                     style="background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(35, 26, 18, 0.24) 0%, rgba(35, 26, 18, 0.08) 55%, transparent 75%); filter: blur(8px);"></div>
-                                <!-- Tier 2: Directional Cast Studio Shadow (Umbra) -->
-                                <div class="absolute left-1/2 -translate-x-1/2 bottom-2 rounded-[100%]" 
-                                     style="width: 210px; height: 18px; background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(22, 16, 11, 0.48) 0%, rgba(26, 19, 13, 0.20) 55%, transparent 80%); filter: blur(3.5px);"></div>
-                                <!-- Tier 3: Razor-Sharp Contact Occlusion Shadow (Shoe Soles Firmly Grounded) -->
-                                <div class="absolute left-1/2 -translate-x-1/2 bottom-[11px] rounded-[100%]" 
-                                     style="width: 155px; height: 8px; background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(10, 7, 5, 0.92) 0%, rgba(16, 12, 9, 0.60) 50%, transparent 85%); filter: blur(1.2px);"></div>
+                                 style="bottom: -6px; left: 50%; transform: translateX(-50%); width: 300px; height: 40px; z-index: 1;">
+                                <!-- Layer 1: Wide soft ambient penumbra — very translucent, large spread -->
+                                <div class="absolute inset-0 rounded-[50%]" 
+                                     style="background: radial-gradient(ellipse 70% 55% at 50% 60%, rgba(60, 45, 30, 0.13) 0%, rgba(50, 38, 24, 0.05) 55%, transparent 80%); filter: blur(10px);"></div>
+                                <!-- Layer 2: Mid shadow — warm dark ellipse, medium opacity -->
+                                <div class="absolute left-1/2 -translate-x-1/2 bottom-[4px] rounded-[50%]" 
+                                     style="width: 200px; height: 16px; background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(40, 28, 16, 0.28) 0%, rgba(45, 33, 20, 0.10) 55%, transparent 82%); filter: blur(5px);"></div>
+                                <!-- Layer 3: Contact shadow — tight, soft, just beneath shoe soles -->
+                                <div class="absolute left-1/2 -translate-x-1/2 bottom-[9px] rounded-[50%]" 
+                                     style="width: 130px; height: 6px; background: radial-gradient(ellipse 68% 50% at 50% 50%, rgba(30, 20, 12, 0.45) 0%, rgba(35, 25, 14, 0.18) 50%, transparent 80%); filter: blur(2px);"></div>
                             </div>
 
                             <!-- Cut-out Model Image (Placed firmly on floor baseline, no floating sticker shadow) -->
@@ -1517,8 +1517,8 @@
             const isMobile = window.innerWidth < 640;
             const isTablet = window.innerWidth < 1024;
             return {
-                radiusX: isMobile ? 210 : (isTablet ? 300 : 380),
-                dragSpacing: isMobile ? 150 : 200
+                radiusX: isMobile ? 270 : (isTablet ? 390 : 490),
+                dragSpacing: isMobile ? 170 : 230
             };
         }
         let { radiusX, dragSpacing } = getStageDimensions();
@@ -1704,6 +1704,18 @@
                     el.style.opacity = opacity.toFixed(2);
                     el.style.zIndex = zIndex;
                     el.style.pointerEvents = opacity < 0.08 ? 'none' : 'auto';
+
+                    // Scale shadow opacity with depth & model visibility — dimmer when far/behind
+                    const shadowBox = el.querySelector('.model-shadow-box');
+                    if (shadowBox) {
+                        // Shadow scales with model scale (smaller model = smaller shadow footprint)
+                        // Opacity follows model opacity but slightly dimmer; at back shadow fades too
+                        const shadowOpacity = opacity * (0.55 + cosVal * 0.45);
+                        shadowBox.style.opacity = Math.max(0, shadowOpacity).toFixed(2);
+                        // Compress shadow width as model goes back (perspective foreshortening)
+                        const shadowScale = 0.65 + scale * 0.35;
+                        shadowBox.style.transform = `translateX(-50%) scaleX(${shadowScale.toFixed(3)})`;
+                    }
                 });
             }
 
