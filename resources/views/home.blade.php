@@ -651,25 +651,42 @@
             <!-- Horizontal Gliding Viewport -->
             <div class="runway-viewport w-full h-[470px] sm:h-[530px] lg:h-[570px] relative overflow-hidden cursor-grab active:cursor-grabbing select-none" id="runway-viewport" style="touch-action: pan-y;">
                 
-                <!-- Floor Horizon Guide Line (seamless & subtle) -->
-                <div class="absolute bottom-6 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#dcd3c5]/50 to-transparent pointer-events-none z-0"></div>
+                <!-- Floor Horizon Guide Line & Grounding Runway Sheen -->
+                <div class="absolute bottom-6 inset-x-0 pointer-events-none z-0">
+                    <div class="w-full h-px bg-gradient-to-r from-transparent via-[#dcd3c5]/60 to-transparent"></div>
+                    <div class="w-full h-7 bg-gradient-to-b from-[#efe9de]/40 to-transparent"></div>
+                </div>
 
-                <!-- Stage for All Models (Continuous 2.5D Real-Time Stage) -->
+                <!-- Stage for All Models (Continuous 3D Circular Runway Carousel) -->
                 <div class="runway-stage absolute inset-0 w-full h-full pointer-events-none" id="runway-stage">
                     @foreach ($finalRunwayModels as $idx => $m)
                     <div class="runway-item will-change-transform cursor-pointer pointer-events-auto select-none" 
                          data-index="{{ $idx }}" 
                          style="position: absolute; left: 50%; bottom: 24px; transform-origin: bottom center; user-select: none;">
                         <div class="relative flex flex-col items-center justify-end">
+                            
+                            <!-- Realistic 3-Tier Studio Floor Shadow (Grounding & Contact Occlusion - Zero Gap) -->
+                            <div class="model-shadow-box absolute pointer-events-none select-none" 
+                                 style="bottom: -8px; left: 50%; transform: translateX(-50%); width: 280px; height: 36px; z-index: 1;">
+                                <!-- Tier 1: Soft Ambient Floor Glow / Studio Dispersion (Penumbra) -->
+                                <div class="absolute inset-0 rounded-[100%]" 
+                                     style="background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(35, 26, 18, 0.24) 0%, rgba(35, 26, 18, 0.08) 55%, transparent 75%); filter: blur(8px);"></div>
+                                <!-- Tier 2: Directional Cast Studio Shadow (Umbra) -->
+                                <div class="absolute left-1/2 -translate-x-1/2 bottom-2 rounded-[100%]" 
+                                     style="width: 210px; height: 18px; background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(22, 16, 11, 0.48) 0%, rgba(26, 19, 13, 0.20) 55%, transparent 80%); filter: blur(3.5px);"></div>
+                                <!-- Tier 3: Razor-Sharp Contact Occlusion Shadow (Shoe Soles Firmly Grounded) -->
+                                <div class="absolute left-1/2 -translate-x-1/2 bottom-[11px] rounded-[100%]" 
+                                     style="width: 155px; height: 8px; background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(10, 7, 5, 0.92) 0%, rgba(16, 12, 9, 0.60) 50%, transparent 85%); filter: blur(1.2px);"></div>
+                            </div>
+
+                            <!-- Cut-out Model Image (Placed firmly on floor baseline, no floating sticker shadow) -->
                             <img 
                                 src="{{ $m['image'] }}" 
                                 alt="{{ $m['name'] }} - {{ $m['role'] }}" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none drop-shadow-md"
+                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none relative z-10 block"
+                                style="margin-bottom: -5px;"
                                 draggable="false"
                             />
-                            <!-- Grounding Floor Shadow -->
-                            <div class="floor-shadow w-44 sm:w-56 h-5 rounded-full pointer-events-none -mt-2.5" 
-                                 style="background: radial-gradient(ellipse at center, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 70%);"></div>
                         </div>
                     </div>
                     @endforeach
@@ -747,6 +764,9 @@
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 </div>
+                <span class="text-[10px] text-[#9e9488] font-sans-luxury hidden sm:inline tracking-wider uppercase ml-1">
+                    &larr; Geser model untuk melihat look &rarr;
+                </span>
             </div>
 
         </div>
@@ -1337,7 +1357,7 @@
 <script>
         // Hero Slide Indicator interactive & switcher
         let currentSlide = 1;
-        const totalSlides = 3;
+        const totalSlides = 1;
         const heroSlides = document.querySelectorAll('.hero-slide');
         const heroDotBtns = document.querySelectorAll('.hero-dot-btn');
 
@@ -1382,33 +1402,7 @@
             });
         }
 
-        // Click handlers on vertical dots
-        heroDotBtns.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const targetSlide = parseInt(btn.getAttribute('data-slide'), 10);
-                setHeroSlide(targetSlide);
-                resetAutoSlide();
-            });
-        });
-
-        let autoSlideTimer = setInterval(() => {
-            const next = currentSlide < totalSlides ? currentSlide + 1 : 1;
-            setHeroSlide(next);
-        }, 5500);
-
-        function resetAutoSlide() {
-            clearInterval(autoSlideTimer);
-            autoSlideTimer = setInterval(() => {
-                const next = currentSlide < totalSlides ? currentSlide + 1 : 1;
-                setHeroSlide(next);
-            }, 5500);
-        }
-
-        const heroContainer = document.querySelector('.hero-carousel-container');
-        if (heroContainer) {
-            heroContainer.addEventListener('mouseenter', () => clearInterval(autoSlideTimer));
-            heroContainer.addEventListener('mouseleave', resetAutoSlide);
-        }
+        // Keep hero model photo fixed; other page carousels remain independent.
 
         // Testimonial Carousel Data
         @php
@@ -1507,30 +1501,41 @@
         const panelHeightMobile = document.getElementById('panel-height-mobile');
         const panelBookingTextMobile = document.getElementById('panel-booking-text-mobile');
 
-        // Physics & Real-Time Drag State
+        // Physics & Real-Time Drag State (Infinite 3D Circular/Cylindrical Carousel)
         let targetProgress = 0;
         let currentProgress = 0;
         let isDragging = false;
         let startX = 0;
+        let lastX = 0;
+        let lastTime = 0;
+        let dragVelocity = 0;
         let startProgress = 0;
         let hasDragged = false;
         let activeIndex = 0;
 
-        function getSpacing() {
-            return window.innerWidth < 640 ? 160 : 210;
+        function getStageDimensions() {
+            const isMobile = window.innerWidth < 640;
+            const isTablet = window.innerWidth < 1024;
+            return {
+                radiusX: isMobile ? 210 : (isTablet ? 300 : 380),
+                dragSpacing: isMobile ? 150 : 200
+            };
         }
-        let SPACING = getSpacing();
+        let { radiusX, dragSpacing } = getStageDimensions();
 
         window.addEventListener('resize', () => {
-            SPACING = getSpacing();
+            const dims = getStageDimensions();
+            radiusX = dims.radiusX;
+            dragSpacing = dims.dragSpacing;
         });
 
-        // 1. Update Profile Card & Navigation Number
+        // 1. Update Profile Card & Navigation Number (Infinite wrap-around modulo)
         function setActiveIndex(newIndex) {
-            if (newIndex < 0 || newIndex >= runwayModels.length) return;
-            activeIndex = newIndex;
+            const N = runwayModels.length;
+            if (!N) return;
+            activeIndex = ((newIndex % N) + N) % N;
 
-            // Update Counter (e.g. "01" / "05")
+            // Update Counter (e.g. "01" / "06")
             if (runwayCurrentNum) {
                 runwayCurrentNum.textContent = (activeIndex + 1) < 10 ? '0' + (activeIndex + 1) : String(activeIndex + 1);
             }
@@ -1561,35 +1566,49 @@
             isDragging = true;
             hasDragged = false;
             startX = e.clientX;
+            lastX = e.clientX;
+            lastTime = performance.now();
+            dragVelocity = 0;
             startProgress = targetProgress;
             if (runwayViewport) {
                 runwayViewport.style.cursor = 'grabbing';
             }
         }
 
-        // 3. Pointer Move (Real-Time Scrubbing pixel by pixel)
+        // 3. Pointer Move (Real-Time Scrubbing without boundary clamp - Infinite looping)
         function onPointerMove(e) {
             if (!isDragging) return;
+            const now = performance.now();
+            const dt = now - lastTime;
+            const dx = e.clientX - lastX;
+            if (dt > 0) {
+                dragVelocity = dx / dt;
+            }
+            lastX = e.clientX;
+            lastTime = now;
+
             const deltaX = e.clientX - startX;
             if (Math.abs(deltaX) > 4) {
                 hasDragged = true;
             }
-            // Geser ke kiri = maju ke model berikutnya, geser ke kanan = mundur
-            targetProgress = startProgress - (deltaX / SPACING);
-            // Batasi agar tidak lepas jauh melewati model pertama dan terakhir
-            targetProgress = Math.max(-0.35, Math.min(runwayModels.length - 1 + 0.35, targetProgress));
+            // Geser ke kiri = maju (targetProgress bertambah), geser ke kanan = mundur
+            // Tanpa clamp (infinite loop)
+            targetProgress = startProgress - (deltaX / dragSpacing);
         }
 
-        // 4. Pointer Up (Smooth auto-snap to nearest model)
+        // 4. Pointer Up (Smooth auto-snap with flick gesture support)
         function onPointerUp() {
             if (!isDragging) return;
             isDragging = false;
             if (runwayViewport) {
                 runwayViewport.style.cursor = 'grab';
             }
-            const snappedIndex = Math.max(0, Math.min(runwayModels.length - 1, Math.round(targetProgress)));
-            targetProgress = snappedIndex;
-            setActiveIndex(snappedIndex);
+            let flickOffset = 0;
+            if (Math.abs(dragVelocity) > 0.45) {
+                // Flick left (negative velocity) -> advances forward (+1)
+                flickOffset = dragVelocity < 0 ? 0.45 : -0.45;
+            }
+            targetProgress = Math.round(targetProgress + flickOffset);
         }
 
         // Attach listeners for unified drag (Mouse & Touch via Pointer events)
@@ -1600,24 +1619,25 @@
         window.addEventListener('pointerup', onPointerUp);
         window.addEventListener('pointercancel', onPointerUp);
 
-        // Click on individual model items to snap directly
+        // Click on individual model items to snap directly via shortest circular path
         runwayItems.forEach((item, index) => {
             item.addEventListener('click', (e) => {
                 if (hasDragged) return;
-                targetProgress = index;
-                setActiveIndex(index);
+                const N = runwayModels.length;
+                if (!N) return;
+                let diff = (index - (targetProgress % N)) % N;
+                while (diff < -N / 2) diff += N;
+                while (diff > N / 2) diff -= N;
+                targetProgress = targetProgress + diff;
             });
         });
 
-        // Navigation arrow buttons (Bottom Left)
+        // Navigation arrow buttons (Bottom Left) - Infinite stepping
         if (runwayPrevBtn) {
             runwayPrevBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const current = Math.round(targetProgress);
-                const prev = current > 0 ? current - 1 : runwayModels.length - 1;
-                targetProgress = prev;
-                setActiveIndex(prev);
+                targetProgress = Math.round(targetProgress) - 1;
             });
         }
 
@@ -1625,43 +1645,67 @@
             runwayNextBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const current = Math.round(targetProgress);
-                const next = current < runwayModels.length - 1 ? current + 1 : 0;
-                targetProgress = next;
-                setActiveIndex(next);
+                targetProgress = Math.round(targetProgress) + 1;
             });
         }
 
-        // 5. 60 FPS Continuous Render Loop via requestAnimationFrame
+        // 5. 60 FPS Continuous Render Loop (3D Circular Backward Receding Carousel)
         function renderLoop() {
             // Rumus Lerp untuk efek inersia/ayunan halus
             currentProgress += (targetProgress - currentProgress) * 0.085;
 
-            // Update kartu informasi secara reaktif saat model melewati titik tengah ketika sedang di-drag
-            const liveCenterIndex = Math.max(0, Math.min(runwayModels.length - 1, Math.round(currentProgress)));
-            if (liveCenterIndex !== activeIndex) {
-                setActiveIndex(liveCenterIndex);
+            const N = runwayModels.length;
+            if (N > 0) {
+                // Update kartu informasi secara reaktif saat model melewati titik tengah
+                const liveCenterIndex = ((Math.round(currentProgress) % N) + N) % N;
+                if (liveCenterIndex !== activeIndex) {
+                    setActiveIndex(liveCenterIndex);
+                }
+
+                // Terapkan transformasi 3D melingkar kebelakang ke masing-masing elemen model
+                runwayItems.forEach((el, index) => {
+                    if (!el) return;
+
+                    // Jarak melingkar terpendek ke titik tengah [-N/2, N/2]
+                    let offset = (index - (currentProgress % N)) % N;
+                    while (offset < -N / 2) offset += N;
+                    while (offset > N / 2) offset -= N;
+
+                    // Sudut melingkar dalam radian (0 = spotlight tengah, +/- PI = paling belakang)
+                    const angle = (offset / N) * (2 * Math.PI);
+                    const sinVal = Math.sin(angle);
+                    const cosVal = Math.cos(angle);
+
+                    // Distribusi lengkung horizontal (kombinasi harmonik 1 & 2 agar model samping tetap terekspos rapi)
+                    const curvedX = sinVal - 0.28 * Math.sin(2 * angle);
+                    const translateX = curvedX * radiusX;
+
+                    // Kedalaman 3D (0.0 = paling depan/spotlight, 1.0 = paling belakang)
+                    const depthRatio = (1 - cosVal) / 2;
+
+                    // Skala perspektif (1.0 di depan, 0.58 di belakang)
+                    const scale = 1.0 - (depthRatio * 0.42);
+
+                    // Blur kedalaman kamera (0px saat di depan tengah, hingga 8px di belakang)
+                    const blur = depthRatio < 0.08 ? 0 : Math.min(8, (depthRatio - 0.05) * 8.5);
+
+                    // Opasitas halus: 1.0 di bagian depan, fade out ke 0 saat berputar di belakang (-0.2 sampai -0.95)
+                    let opacity = 1.0;
+                    if (cosVal < -0.2) {
+                        opacity = Math.max(0, (cosVal - (-0.95)) / (-0.2 - (-0.95)));
+                    }
+
+                    // Z-Index hierarki: model depan selalu menutupi model belakang (range 10 - 90)
+                    const zIndex = Math.round(50 + cosVal * 40);
+
+                    // Grounding 100% menapak lantai (translateY = 0px dengan transform-origin: bottom center)
+                    el.style.transform = `translate3d(calc(-50% + ${translateX.toFixed(2)}px), 0px, 0) scale(${scale.toFixed(3)})`;
+                    el.style.filter = blur > 0.05 ? `blur(${blur.toFixed(2)}px)` : 'none';
+                    el.style.opacity = opacity.toFixed(2);
+                    el.style.zIndex = zIndex;
+                    el.style.pointerEvents = opacity < 0.08 ? 'none' : 'auto';
+                });
             }
-
-            // Terapkan transformasi 2.5D langsung ke masing-masing elemen DOM model
-            runwayItems.forEach((el, index) => {
-                if (!el) return;
-                const offset = index - currentProgress; // Jarak ke titik tengah (float)
-                const absOffset = Math.abs(offset);
-
-                // Perhitungan posisi, skala bertingkat, perspektif lengkung Y, dan blur real-time
-                const translateX = offset * SPACING;
-                const translateY = -Math.min(45, absOffset * 16); // Kaki model pinggir sedikit lebih naik
-                const scale = Math.max(0.55, 1 - absOffset * 0.16);
-                const blur = Math.min(8, Math.max(0, (absOffset - 0.1) * 3.2));
-                const opacity = Math.max(0, 1 - Math.max(0, absOffset - 2.2) * 0.8);
-                const zIndex = Math.round(100 - absOffset * 10);
-
-                el.style.transform = `translate3d(calc(-50% + ${translateX.toFixed(2)}px), ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(3)})`;
-                el.style.filter = `blur(${blur.toFixed(2)}px)`;
-                el.style.opacity = opacity.toFixed(2);
-                el.style.zIndex = zIndex;
-            });
 
             requestAnimationFrame(renderLoop);
         }
