@@ -1,6 +1,6 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
-@section('title', 'Siluet Model Tala - Shape Your Presence')
+@section('title', 'Siluet Model Tala')
 
 @section('content')
 <style>
@@ -624,13 +624,13 @@
 
         $finalRunwayModels = !empty($activeRunwayList) ? $activeRunwayList : $defaultRunwayModels;
     @endphp
-    <section id="virtual-runway" class="py-16 lg:py-24 bg-[#f7f4ee] relative overflow-hidden select-none border-t border-[#ede7dd]">
+    <section id="virtual-runway" class="pt-8 pb-6 lg:pt-12 lg:pb-8 bg-[#f7f4ee] relative overflow-hidden select-none border-t border-[#ede7dd]">
 
         <!-- Ambient floor glow (seamless runway lighting) -->
         <div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-[1100px] h-[260px] rounded-full pointer-events-none blur-3xl opacity-60" style="background:radial-gradient(ellipse at center, rgba(230,220,205,0.7) 0%, transparent 70%);"></div>
 
         <!-- Section Header -->
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-14 relative z-10 mb-2 sm:mb-4">
+        <div class="max-w-[1400px] mx-auto px-6 lg:px-14 relative z-10 mb-1">
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h2 class="font-serif-luxury text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#171513] leading-tight">
@@ -646,10 +646,10 @@
         </div>
 
         <!-- SEAMLESS RUNWAY CANVAS (NO RECTANGLE BOX - DIRECT ON PAGE BACKGROUND) -->
-        <div class="relative w-full z-10 min-h-[500px] sm:min-h-[560px] lg:min-h-[600px] flex items-center overflow-hidden" id="runway-container">
+        <div class="relative w-full z-10 flex items-end overflow-hidden" id="runway-container">
 
             <!-- Horizontal Gliding Viewport -->
-            <div class="runway-viewport w-full h-[470px] sm:h-[530px] lg:h-[570px] relative overflow-hidden cursor-grab active:cursor-grabbing select-none" id="runway-viewport" style="touch-action: pan-y;">
+            <div class="runway-viewport w-full h-[420px] sm:h-[480px] lg:h-[520px] relative overflow-hidden cursor-grab active:cursor-grabbing select-none" id="runway-viewport" style="touch-action: pan-y;">
                 
                 <!-- Floor Horizon Guide Line & Grounding Runway Sheen -->
                 <div class="absolute bottom-6 inset-x-0 pointer-events-none z-0">
@@ -662,7 +662,7 @@
                     @foreach ($finalRunwayModels as $idx => $m)
                     <div class="runway-item will-change-transform cursor-pointer pointer-events-auto select-none" 
                          data-index="{{ $idx }}" 
-                         style="position: absolute; left: 50%; bottom: 24px; transform-origin: bottom center; user-select: none;">
+                         style="position: absolute; left: 50%; bottom: 16px; transform-origin: bottom center; user-select: none;">
                         <div class="relative flex flex-col items-center justify-end">
                             
                             <!-- Realistic Studio Floor Shadow — Natural, soft, warm-toned -->
@@ -683,7 +683,7 @@
                             <img 
                                 src="{{ $m['image'] }}" 
                                 alt="{{ $m['name'] }} - {{ $m['role'] }}" 
-                                class="model-img h-[390px] sm:h-[460px] lg:h-[500px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none relative z-10 block"
+                                class="model-img h-[390px] sm:h-[450px] lg:h-[400px] w-auto max-w-none object-contain object-bottom pointer-events-none select-none relative z-10 block"
                                 style="margin-bottom: -5px;"
                                 draggable="false"
                             />
