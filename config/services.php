@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'rembg' => [
+        'python_path' => env('REMBG_PYTHON_PATH'),
+        'script_path' => base_path('scripts/remove_background.py'),
+        'model' => env('REMBG_MODEL', 'u2net'),
+        'cache_dir' => env('REMBG_CACHE_DIR', storage_path('app/rembg-models')),
+        'timeout' => (int) env('REMBG_TIMEOUT', 120),
+        'alpha_matting' => filter_var(env('REMBG_ALPHA_MATTING', false), FILTER_VALIDATE_BOOL),
+        'max_upload_kb' => (int) env('REMBG_MAX_UPLOAD_KB', 5120),
+    ],
+
 ];

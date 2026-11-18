@@ -3,14 +3,114 @@
 namespace App\Http\Controllers;
 
 use App\Models\PortalRecord;
+use App\Services\BackgroundRemovalService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class PortalRecordController extends Controller
 {
     private const TYPES = ['testimonial', 'gallery', 'settings', 'contact', 'certificate', 'booking', 'runway'];
+
+    public function __construct(
+        private readonly BackgroundRemovalService $backgroundRemoval,
+    ) {}
+
+    public function removeRunwayBackground(Request $request): JsonResponse
+    {
+        $maxKb = (int) config('services.rembg.max_upload_kb', 5120);
+        $maxMbLabel = round($maxKb / 1024, 1);
+
+        try {
+            if ($request->filled('image_base64')) {
+                $request->validate([
+                    'image_base64' => ['required', 'string'],
+                ]);
+
+                $dataUri = (string) $request->input('image_base64');
+                if (! preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+\/\s]+=*)$/', $dataUri, $matches)) {
+                    return response()->json([
+                        'message' => 'Format gambar harus JPG, JPEG, PNG, atau WEBP.',
+                    ], 422);
+                }
+
+                $rawBytes = base64_decode(preg_replace('/\s+/', '', $matches[2]), true);
+                if ($rawBytes === false || $rawBytes === '') {
+                    return response()->json([
+                        'message' => 'Data foto tidak valid atau rusak.',
+                    ], 422);
+                }
+
+                if (strlen($rawBytes) > ($maxKb * 1024)) {
+                    return response()->json([
+                        'message' => "Ukuran foto maksimal {$maxMbLabel} MB.",
+                    ], 422);
+                }
+
+                $imgInfo = @getimagesizefromstring($rawBytes);
+                $allowedTypes = [
+                    IMAGETYPE_JPEG => 'jpg',
+                    IMAGETYPE_PNG => 'png',
+                    IMAGETYPE_WEBP => 'webp',
+                ];
+                if ($imgInfo === false || ! isset($allowedTypes[$imgInfo[2] ?? 0])) {
+                    return response()->json([
+                        'message' => 'File yang diunggah bukan gambar JPG, PNG, atau WEBP yang valid.',
+                    ], 422);
+                }
+
+                $result = $this->backgroundRemoval->removeBackgroundFromBytes($rawBytes, $allowedTypes[$imgInfo[2]]);
+
+                return response()->json($result);
+            }
+
+            $request->validate([
+                'image' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.$maxKb],
+            ], [
+                'image.required' => 'Pilih foto model terlebih dahulu.',
+                'image.uploaded' => 'Foto gagal diunggah karena melebihi batas upload PHP server ('.ini_get('upload_max_filesize').').',
+                'image.image' => 'File yang diunggah harus berupa gambar.',
+                'image.mimes' => 'Format gambar harus JPG, JPEG, PNG, atau WEBP.',
+                'image.max' => "Ukuran foto maksimal {$maxMbLabel} MB.",
+            ]);
+
+            $result = $this->backgroundRemoval->removeBackgroundToTemporaryPreview($request->file('image'));
+
+            return response()->json($result);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (RuntimeException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Throwable $e) {
+            Log::error('Unexpected runway background removal error', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menghapus background foto. Silakan coba lagi.',
+            ], 500);
+        }
+    }
+
+    public function discardRunwayPreview(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'processed_path' => ['nullable', 'string', 'max:255'],
+            'original_path' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $this->backgroundRemoval->discardTemporaryFiles(
+            $validated['processed_path'] ?? null,
+            $validated['original_path'] ?? null,
+        );
+
+        return response()->json(['message' => 'Preview sementara dihapus.']);
+    }
 
     public function index(string $type): JsonResponse
     {
@@ -51,8 +151,11 @@ class PortalRecordController extends Controller
         }
 
         if ($record->type === 'runway') {
+            $maxKb = (int) config('services.rembg.max_upload_kb', 5120);
             $request->validate([
-                'image' => ['nullable', 'image', 'mimes:png,webp,jpg,jpeg', 'max:5120'],
+                'image' => ['nullable', 'file', 'image', 'mimes:png,webp,jpg,jpeg', 'max:'.$maxKb],
+                'processed_path' => ['nullable', 'string', 'max:255'],
+                'original_path' => ['nullable', 'string', 'max:255'],
                 'data.name' => ['sometimes', 'required', 'string', 'max:255'],
                 'data.role' => ['sometimes', 'required', 'string', 'max:255'],
                 'data.category' => ['sometimes', 'required', 'string', 'max:100'],
@@ -63,13 +166,34 @@ class PortalRecordController extends Controller
                 'data.bookingText' => ['nullable', 'string', 'max:255'],
             ]);
             $runwayData = array_merge($record->data ?? [], $request->input('data', []));
-            if ($request->hasFile('image')) {
-                $oldImage = $record->data['image'] ?? null;
-                if (is_string($oldImage) && str_starts_with($oldImage, '/storage/')) {
-                    Storage::disk('public')->delete(substr($oldImage, strlen('/storage/')));
+
+            try {
+                if ($request->filled('processed_path')) {
+                    $finalized = $this->backgroundRemoval->finalizeTemporaryFiles(
+                        (string) $request->input('processed_path'),
+                        $request->input('original_path') ? (string) $request->input('original_path') : null,
+                    );
+                    $this->backgroundRemoval->deleteStoredRunwayAssets($record->data ?? []);
+                    $runwayData['image'] = $finalized['image'];
+                    if ($finalized['original_image']) {
+                        $runwayData['original_image'] = $finalized['original_image'];
+                    }
+                } elseif ($request->hasFile('image')) {
+                    $preview = $this->backgroundRemoval->removeBackgroundToTemporaryPreview($request->file('image'));
+                    $finalized = $this->backgroundRemoval->finalizeTemporaryFiles(
+                        $preview['processed_path'],
+                        $preview['original_path'],
+                    );
+                    $this->backgroundRemoval->deleteStoredRunwayAssets($record->data ?? []);
+                    $runwayData['image'] = $finalized['image'];
+                    if ($finalized['original_image']) {
+                        $runwayData['original_image'] = $finalized['original_image'];
+                    }
                 }
-                $runwayData['image'] = '/storage/'.$request->file('image')->store('runway', 'public');
+            } catch (RuntimeException $e) {
+                return response()->json(['message' => $e->getMessage()], 422);
             }
+
             $data['data'] = $runwayData;
         }
 
@@ -89,10 +213,7 @@ class PortalRecordController extends Controller
             }
         }
         if ($record->type === 'runway') {
-            $image = $record->data['image'] ?? null;
-            if (is_string($image) && str_starts_with($image, '/storage/')) {
-                Storage::disk('public')->delete(substr($image, strlen('/storage/')));
-            }
+            $this->backgroundRemoval->deleteStoredRunwayAssets($record->data ?? []);
         }
         $record->delete();
 
@@ -165,8 +286,11 @@ class PortalRecordController extends Controller
         }
 
         if ($type === 'runway') {
+            $maxKb = (int) config('services.rembg.max_upload_kb', 5120);
             $request->validate([
-                'image' => ['nullable', 'image', 'mimes:png,webp,jpg,jpeg', 'max:5120'],
+                'image' => ['nullable', 'file', 'image', 'mimes:png,webp,jpg,jpeg', 'max:'.$maxKb],
+                'processed_path' => ['nullable', 'string', 'max:255'],
+                'original_path' => ['nullable', 'string', 'max:255'],
                 'data.name' => ['required', 'string', 'max:255'],
                 'data.role' => ['required', 'string', 'max:255'],
                 'data.category' => ['required', 'string', 'max:100'],
@@ -176,8 +300,30 @@ class PortalRecordController extends Controller
                 'data.height' => ['nullable', 'string', 'max:50'],
                 'data.bookingText' => ['nullable', 'string', 'max:255'],
             ]);
-            if ($request->hasFile('image')) {
-                $data['data']['image'] = '/storage/'.$request->file('image')->store('runway', 'public');
+
+            try {
+                if ($request->filled('processed_path')) {
+                    $finalized = $this->backgroundRemoval->finalizeTemporaryFiles(
+                        (string) $request->input('processed_path'),
+                        $request->input('original_path') ? (string) $request->input('original_path') : null,
+                    );
+                    $data['data']['image'] = $finalized['image'];
+                    if ($finalized['original_image']) {
+                        $data['data']['original_image'] = $finalized['original_image'];
+                    }
+                } elseif ($request->hasFile('image')) {
+                    $preview = $this->backgroundRemoval->removeBackgroundToTemporaryPreview($request->file('image'));
+                    $finalized = $this->backgroundRemoval->finalizeTemporaryFiles(
+                        $preview['processed_path'],
+                        $preview['original_path'],
+                    );
+                    $data['data']['image'] = $finalized['image'];
+                    if ($finalized['original_image']) {
+                        $data['data']['original_image'] = $finalized['original_image'];
+                    }
+                }
+            } catch (RuntimeException $e) {
+                return response()->json(['message' => $e->getMessage()], 422);
             }
         }
 

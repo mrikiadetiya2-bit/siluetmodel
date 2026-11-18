@@ -19,6 +19,8 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
     Route::post('/api/admin/records/{type}', [PortalRecordController::class, 'store']);
     Route::put('/api/admin/records/{record}', [PortalRecordController::class, 'update']);
     Route::delete('/api/admin/records/{record}', [PortalRecordController::class, 'destroy']);
+    Route::post('/api/admin/runway/remove-background', [PortalRecordController::class, 'removeRunwayBackground']);
+    Route::post('/api/admin/runway/discard-preview', [PortalRecordController::class, 'discardRunwayPreview']);
 });
 Route::get('/api/public/records/{type}', [PortalRecordController::class, 'publicIndex']);
 Route::post('/api/public/records/{type}', [PortalRecordController::class, 'publicStore'])->middleware('throttle:5,1');

@@ -19,7 +19,9 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/app/rembg-models
 /storage/pail
+/.venv-rembg
 /vendor
 _ide_helper.php
 Homestead.json

@@ -1,0 +1,3 @@
+# Pyrefly configuration for Siluet Model Tala AI Background Remover
+project-includes = ["scripts"]
+python-interpreter-path = ".venv-rembg/Scripts/python.exe"
