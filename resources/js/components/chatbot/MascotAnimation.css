@@ -48,9 +48,9 @@
 }
 
 /* Waving Arm Animation */
-/* Calibrated pivot point at right shoulder socket: 78.1% 91.2% */
+/* Calibrated shoulder ball-socket pivot on full 1024×765 canvas: (380, 468) -> 37.11% 61.18% */
 .mascot-arm-waving {
-    transform-origin: 78.1% 91.2%;
+    transform-origin: 37.11% 61.18%;
     will-change: transform;
     animation: mascot-wave 1.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
@@ -60,16 +60,16 @@
         transform: rotate(0deg);
     }
     20% {
-        transform: rotate(-13deg);
+        transform: rotate(-12deg);
     }
     40% {
-        transform: rotate(4deg);
+        transform: rotate(3deg);
     }
     60% {
-        transform: rotate(-11deg);
+        transform: rotate(-9deg);
     }
     80% {
-        transform: rotate(3deg);
+        transform: rotate(2deg);
     }
     100% {
         transform: rotate(0deg);

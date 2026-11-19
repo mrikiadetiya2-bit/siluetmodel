@@ -4,12 +4,12 @@ import './MascotAnimation.css';
 
 /**
  * MascotCharacter Component
- * Renders the unified Robot Deer Mascot with natural anatomical proportions:
- * - Layer 1 (z-15): Tangan Kiri / Left Arm (tangankiri_arm.png) anchored at left shoulder (59.3%, 57.5%)
- * - Layer 2 (z-15): Tangan Kanan / Right Arm (tangankanan_arm.png) scaled down ~22% for balanced anatomy,
- *                   positioned at (14.26%, 17.39%), with pivot at right shoulder socket (78.1%, 91.2%)
- * - Layer 3 (z-20): Badan Utama / Body (badan.png) - shoulder armor plates overlap both arm bases seamlessly
- * - Layer 4 (z-30): Face screen with cyber-cyan SVG eyes & mouth (MascotFace)
+ * Renders the unified Robot Deer Mascot with 100% anatomical fidelity:
+ * - Layer 1 (z-10): Tangan Kiri / Left Arm (tangankiri.png, 1024×765) — pixel-perfect rest posture
+ * - Layer 2 (z-15): Tangan Kanan / Right Arm (tangankanan.png, 1024×765) — anatomical shoulder socket
+ *                   anchored at (380, 468) -> 37.11% 61.18%, smooth ball-joint waving under shoulder plate
+ * - Layer 3 (z-20): Badan Utama / Body (badan.png, 1024×765) — shoulder plate overlaps arm socket seamlessly
+ * - Layer 4 (z-30): Face screen with cyber-cyan SVG glowing eyes & mouth (MascotFace)
  */
 export default function MascotCharacter({
     emotion = 'idle',
@@ -68,52 +68,32 @@ export default function MascotCharacter({
             aria-label="Siluet Model Tala AI Mascot"
         >
             {/* ================= LAYER 1: TANGAN KIRI (LEFT ARM / RELAXED) ================= */}
-            {/* Anchored seamlessly to left shoulder (X=648, Y=450 on 1024x765) */}
-            <div
-                className="absolute pointer-events-none z-15"
-                style={{
-                    left: '59.3%',
-                    top: '57.5%',
-                    width: '11.8%',
-                    height: '34.6%',
-                    transformOrigin: '20% 0%',
-                }}
-            >
-                <img
-                    src="/assets/mascot/tangankiri_arm.png"
-                    alt="Robot Kijang Tangan Kiri"
-                    className="w-full h-full object-contain pointer-events-none"
-                    loading="eager"
-                    draggable={false}
-                />
-            </div>
+            {/* Full 1024×765 canvas: pixel-perfect alignment with badan.png */}
+            <img
+                src="/assets/mascot/tangankiri.png"
+                alt="Robot Kijang Tangan Kiri"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none z-10"
+                loading="eager"
+                draggable={false}
+            />
 
             {/* ================= LAYER 2: TANGAN KANAN (RIGHT ARM / WAVING) ================= */}
-            {/* Scaled down ~22% for natural anatomical proportion matching left arm */}
-            {/* Socket base aligns at right shoulder (X=385, Y=455) under the shoulder pauldron */}
-            <div
-                className={`absolute pointer-events-none z-15 transition-transform duration-500 ease-out ${
-                    shouldWave ? 'mascot-arm-waving' : ''
-                }`}
+            {/* Full 1024×765 canvas: shoulder socket at (380, 468) -> 37.11% 61.18% */}
+            {/* Layer z-15 smoothly anchored under the shoulder plate of badan.png (z-20) */}
+            <img
+                src="/assets/mascot/tangankanan.png"
+                alt="Robot Kijang Tangan Kanan"
+                className={`absolute inset-0 w-full h-full object-contain pointer-events-none z-15 ${shouldWave ? 'mascot-arm-waving' : ''
+                    }`}
                 style={{
-                    left: '14.26%',
-                    top: '17.39%',
-                    width: '29.88%',
-                    height: '46.14%',
-                    transformOrigin: '78.1% 91.2%',
+                    transformOrigin: '37.11% 61.18%',
                 }}
-            >
-                <img
-                    src="/assets/mascot/tangankanan_arm.png"
-                    alt="Robot Kijang Tangan Kanan"
-                    className="w-full h-full object-contain pointer-events-none"
-                    loading="eager"
-                    draggable={false}
-                />
-            </div>
+                loading="eager"
+                draggable={false}
+            />
 
             {/* ================= LAYER 3: BADAN UTAMA (BODY & TORSO) ================= */}
-            {/* Layer z-20 overlaps both arm socket bases by 8-10px for seamless ball-and-socket joints */}
+            {/* Layer z-20 overlaps both arm socket bases seamlessly with zero gap */}
             <img
                 src="/assets/mascot/badan.png"
                 alt="Robot Kijang Badan"
