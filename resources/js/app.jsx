@@ -26,6 +26,7 @@ import AdminRunway from './components/admin/AdminRunway.jsx';
 import AdminReports from './components/admin/AdminReports.jsx';
 import AdminSettings from './components/admin/AdminSettings.jsx';
 import ParticipantDashboard from './components/ParticipantDashboard.jsx';
+import FloatingChatbot from './components/chatbot/FloatingChatbot.jsx';
 
 const components = {
     WomenRoster,
@@ -51,6 +52,7 @@ const components = {
     AdminReports,
     AdminSettings,
     ParticipantDashboard,
+    FloatingChatbot,
 };
 
 

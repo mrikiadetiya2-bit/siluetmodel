@@ -5,6 +5,7 @@ use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\PortalRecordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\ChatbotController;
 
 Route::get('/api/programs', [ProgramController::class, 'publicIndex']);
 Route::get('/api/programs/{program}', [ProgramController::class, 'show']);

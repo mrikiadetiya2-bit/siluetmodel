@@ -1,0 +1,144 @@
+/* =========================================================================
+   ROBOT KIJANG MASCOT ANIMATION SYSTEM
+   Pure CSS, GPU-accelerated (transform & opacity only), lightweight & smooth
+   ========================================================================= */
+
+/* Floating / Idle Hover Animation */
+.mascot-container {
+    will-change: transform;
+    animation: mascot-float 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    transform-origin: center bottom;
+}
+
+@keyframes mascot-float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-9px) rotate(0.8deg);
+    }
+}
+
+/* Thinking Emotion Tilt */
+.mascot-thinking {
+    animation: mascot-float-thinking 4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
+}
+
+@keyframes mascot-float-thinking {
+    0%, 100% {
+        transform: translateY(0px) rotate(-3.5deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(-2deg);
+    }
+}
+
+/* Happy Emotion Bounce */
+.mascot-happy {
+    animation: mascot-float-happy 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite !important;
+}
+
+@keyframes mascot-float-happy {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    50% {
+        transform: translateY(-12px) scale(1.02);
+    }
+}
+
+/* Waving Arm Animation */
+/* Calibrated pivot point at right shoulder socket: 78.1% 91.2% */
+.mascot-arm-waving {
+    transform-origin: 78.1% 91.2%;
+    will-change: transform;
+    animation: mascot-wave 1.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes mascot-wave {
+    0% {
+        transform: rotate(0deg);
+    }
+    20% {
+        transform: rotate(-13deg);
+    }
+    40% {
+        transform: rotate(4deg);
+    }
+    60% {
+        transform: rotate(-11deg);
+    }
+    80% {
+        transform: rotate(3deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Natural Eye Blinking */
+.mascot-eye {
+    transform-origin: center center;
+    animation: mascot-blink 4.6s infinite ease-in-out;
+}
+
+@keyframes mascot-blink {
+    0%, 93%, 100% {
+        transform: scaleY(1);
+    }
+    96.5% {
+        transform: scaleY(0.08);
+    }
+}
+
+/* Cyan Neon Glow on Eyes & Face */
+.mascot-glow {
+    filter: drop-shadow(0 0 6px rgba(6, 182, 212, 0.85)) drop-shadow(0 0 14px rgba(34, 211, 238, 0.5));
+    animation: mascot-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes mascot-pulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px rgba(6, 182, 212, 0.8)) drop-shadow(0 0 12px rgba(34, 211, 238, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.95)) drop-shadow(0 0 18px rgba(6, 182, 212, 0.65));
+    }
+}
+
+/* Talking Mouth Animation */
+.mascot-mouth-talking {
+    transform-origin: center center;
+    animation: mascot-mouth-flap 0.28s ease-in-out infinite alternate;
+}
+
+@keyframes mascot-mouth-flap {
+    0% {
+        transform: scaleY(0.5) scaleX(0.85);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scaleY(1.35) scaleX(1.1);
+        opacity: 1;
+    }
+}
+
+/* Smooth Transitions between Emotions */
+.mascot-transition {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Respect Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .mascot-container,
+    .mascot-thinking,
+    .mascot-happy,
+    .mascot-arm-waving,
+    .mascot-eye,
+    .mascot-mouth-talking,
+    .mascot-glow {
+        animation: none !important;
+        transform: none !important;
+    }
+}

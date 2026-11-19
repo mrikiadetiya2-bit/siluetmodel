@@ -32,6 +32,9 @@
     <!-- Luxury Footer -->
     @include('components.footer')
 
+    <!-- Global Interactive Robot Deer AI Floating Chatbot -->
+    <div id="floating-chatbot-root" data-react-component="FloatingChatbot"></div>
+
     <!-- Global Interactive Navigation & Modal Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
