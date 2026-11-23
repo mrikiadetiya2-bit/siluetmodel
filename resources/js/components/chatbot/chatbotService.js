@@ -11,12 +11,14 @@ export const chatbotService = {
      * @param {string|null} conversationId
      * @returns {Promise<{success: boolean, reply: string, emotion: string, conversation_id: string}>}
      */
-    async sendMessage(message, conversationId = null) {
+    async sendMessage(message, conversationId = null, currentPath = null) {
+        const activePath = currentPath || (typeof window !== 'undefined' ? window.location.pathname : '/');
         return await api('/api/chat', {
             method: 'POST',
             body: JSON.stringify({
                 message: message.trim(),
                 conversation_id: conversationId,
+                current_path: activePath,
             }),
         });
     },

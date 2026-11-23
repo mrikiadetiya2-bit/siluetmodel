@@ -25,10 +25,12 @@ class ChatbotController extends Controller
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:1000'],
             'conversation_id' => ['nullable', 'string', 'max:100'],
+            'current_path' => ['nullable', 'string', 'max:255'],
         ]);
 
         $message = trim($validated['message']);
         $conversationId = $validated['conversation_id'] ?? null;
+        $currentPath = $validated['current_path'] ?? null;
 
         if ($message === '') {
             return response()->json([
@@ -40,7 +42,7 @@ class ChatbotController extends Controller
         }
 
         try {
-            $result = $this->geminiService->chat($message, $conversationId);
+            $result = $this->geminiService->chat($message, $conversationId, $currentPath);
 
             return response()->json([
                 'success' => true,
